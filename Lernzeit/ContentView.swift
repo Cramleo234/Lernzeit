@@ -5,6 +5,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
     case stats = "Statistik"
     case history = "Verlauf"
     case subjects = "Fächer"
+    case settings = "Einstellungen"
 
     var id: String { rawValue }
 
@@ -14,6 +15,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
         case .stats: "chart.bar.xaxis"
         case .history: "clock.arrow.circlepath"
         case .subjects: "books.vertical"
+        case .settings: "gearshape"
         }
     }
 }
@@ -35,19 +37,12 @@ struct ContentView: View {
                 case .stats: StatsView()
                 case .history: HistoryView()
                 case .subjects: SubjectsView()
+                case .settings: SettingsView()
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background { AppBackground() }
             .navigationTitle((section ?? .timer).rawValue)
-            .toolbar {
-                ToolbarItem {
-                    SettingsLink {
-                        Image(systemName: "gearshape")
-                    }
-                    .help("Einstellungen öffnen")
-                }
-            }
         }
     }
 }

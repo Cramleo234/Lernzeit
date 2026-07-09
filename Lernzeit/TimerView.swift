@@ -9,6 +9,7 @@ struct TimerView: View {
     @AppStorage(SettingsKeys.customTimerMinutes) private var customTimerMinutes = 25
     @State private var finishedSession: StudySession?
     @Namespace private var glassNamespace
+    private let quickTimerMinutes = [10, 15, 20, 25, 30, 45, 60, 90]
 
     var body: some View {
         @Bindable var engine = engine
@@ -220,19 +221,32 @@ struct TimerView: View {
     }
 
     private var countdownSettings: some View {
-        HStack(spacing: 12) {
-            Stepper("", value: $customTimerMinutes, in: 1...600, step: 1)
-                .labelsHidden()
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                Stepper("", value: $customTimerMinutes, in: 1...600, step: 1)
+                    .labelsHidden()
 
-            TextField("Minuten", value: $customTimerMinutes, format: .number)
-                .textFieldStyle(.roundedBorder)
-                .monospacedDigit()
-                .frame(width: 70)
-                .onSubmit { clampCustomTimerMinutes() }
-                .onChange(of: customTimerMinutes) { _, _ in clampCustomTimerMinutes() }
+                TextField("Minuten", value: $customTimerMinutes, format: .number)
+                    .textFieldStyle(.roundedBorder)
+                    .monospacedDigit()
+                    .frame(width: 70)
+                    .onSubmit { clampCustomTimerMinutes() }
+                    .onChange(of: customTimerMinutes) { _, _ in clampCustomTimerMinutes() }
 
-            Text("Minuten")
-                .foregroundStyle(.secondary)
+                Text("Minuten")
+                    .foregroundStyle(.secondary)
+            }
+
+            HStack(spacing: 8) {
+                ForEach(quickTimerMinutes, id: \.self) { minutes in
+                    Button("\(minutes)") {
+                        customTimerMinutes = minutes
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .accessibilityLabel("\(minutes) Minuten")
+                }
+            }
         }
         .font(.callout)
         .padding(.horizontal, 20)
