@@ -34,7 +34,7 @@ final class NotchOverlayController {
         newPanel.isOpaque = false
         newPanel.backgroundColor = .clear
         newPanel.hasShadow = false
-        newPanel.level = .statusBar
+        newPanel.level = NSWindow.Level(rawValue: NSWindow.Level.statusBar.rawValue + 1)
         newPanel.ignoresMouseEvents = true
         newPanel.collectionBehavior = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary]
         newPanel.contentView = NSHostingView(
@@ -57,11 +57,16 @@ struct NotchLineView: View {
     let margin: CGFloat
 
     var body: some View {
-        NotchOutlineShape(notchWidth: notchWidth, topInset: topInset, margin: margin)
-            .trim(from: 0, to: max(0.001, engine.ambientProgress))
-            .stroke(engine.ambientColor, style: StrokeStyle(lineWidth: 3, lineCap: .round))
-            .opacity(engine.isPaused ? 0.35 : 1)
-            .animation(.linear(duration: 0.5), value: engine.ambientProgress)
+        let shape = NotchOutlineShape(notchWidth: notchWidth, topInset: topInset, margin: margin)
+        ZStack {
+            shape
+                .stroke(Color.gray.opacity(0.35), style: StrokeStyle(lineWidth: 3, lineCap: .round))
+            shape
+                .trim(from: 0, to: max(0.001, engine.ambientProgress))
+                .stroke(engine.ambientColor, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                .animation(.linear(duration: 0.5), value: engine.ambientProgress)
+        }
+        .opacity(engine.isPaused ? 0.35 : 1)
     }
 }
 

@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 struct SettingsView: View {
@@ -41,13 +42,23 @@ struct SettingsView: View {
                 Toggle("Ton bei Phasenwechsel", isOn: $soundsEnabled)
                 Toggle("Restzeit am Dock-Icon", isOn: $dockBadgeEnabled)
                 Toggle("Fortschrittslinie um die Notch", isOn: $notchLineEnabled)
-                Text("Die Notch-Linie erscheint nur auf Macs mit Notch; ansonsten zeigt das Menüleisten-Icon den Fortschritt.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .disabled(!hasNotch)
+                Label(
+                    hasNotch
+                        ? "Notch erkannt — die Linie erscheint bei laufendem Timer um die Notch."
+                        : "Kein Display mit Notch erkannt. Der Fortschritt wird stattdessen als Ring im Menüleisten-Icon angezeigt.",
+                    systemImage: hasNotch ? "checkmark.circle" : "info.circle"
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
             }
         }
         .formStyle(.grouped)
         .frame(width: 440)
         .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private var hasNotch: Bool {
+        NSScreen.screens.contains { $0.safeAreaInsets.top > 0 }
     }
 }
