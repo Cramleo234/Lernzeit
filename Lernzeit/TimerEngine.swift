@@ -24,6 +24,7 @@ enum SettingsKeys {
     static let focusMinutes = "focusMinutes"
     static let breakMinutes = "breakMinutes"
     static let dailyGoalMinutes = "dailyGoalMinutes"
+    static let appAppearance = "appAppearance"
     static let soundsEnabled = "soundsEnabled"
     static let dockBadgeEnabled = "dockBadgeEnabled"
     static let notchLineEnabled = "notchLineEnabled"
