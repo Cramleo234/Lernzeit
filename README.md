@@ -14,6 +14,7 @@ Minimalistische Lern-Timer-App für macOS mit modernem, durchscheinendem Glas-De
 - 🖥️ **Menüleisten-Timer** — Sessions direkt aus der Menüleiste starten, pausieren und stoppen
 - 😴 **Ehrliche Zeiten** — automatische Pause bei Bildschirmsperre oder Inaktivität, automatische Fortsetzung
 - 🧊 **Glas-Design** — natives, durchscheinendes Oberflächen-Design, komplett in SwiftUI
+- 🌙 **Dark Theme** — Darstellung auf System, Hell oder Dunkel stellen
 
 Alle Daten bleiben lokal auf deinem Mac (SwiftData).
 

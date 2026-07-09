@@ -18,6 +18,7 @@ struct LernzeitApp: App {
         WindowGroup(id: "main") {
             ContentView()
                 .environment(engine)
+                .lernzeitAppearance()
         }
         .modelContainer(container)
         .defaultSize(width: 980, height: 660)
@@ -25,6 +26,7 @@ struct LernzeitApp: App {
         WindowGroup(id: "mini") {
             MiniTimerView()
                 .environment(engine)
+                .lernzeitAppearance()
         }
         .modelContainer(container)
         .windowStyle(.hiddenTitleBar)
@@ -33,12 +35,14 @@ struct LernzeitApp: App {
 
         Settings {
             SettingsView()
+                .lernzeitAppearance()
         }
 
         MenuBarExtra {
             MenuBarView()
                 .environment(engine)
                 .modelContainer(container)
+                .lernzeitAppearance()
         } label: {
             if engine.isRunning {
                 HStack(spacing: 5) {

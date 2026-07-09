@@ -10,9 +10,23 @@ struct SettingsView: View {
     @AppStorage(SettingsKeys.notchLineEnabled) private var notchLineEnabled = true
     @AppStorage(SettingsKeys.autoPauseOnLock) private var autoPauseOnLock = true
     @AppStorage(SettingsKeys.autoPauseIdleMinutes) private var autoPauseIdleMinutes = 3
+    @AppStorage(SettingsKeys.appAppearance) private var appAppearance = AppAppearance.system.rawValue
 
     var body: some View {
         Form {
+            Section("Darstellung") {
+                Picker("Theme", selection: $appAppearance) {
+                    ForEach(AppAppearance.allCases) { appearance in
+                        Text(appearance.label).tag(appearance.rawValue)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                Text("Wähle „Dunkel“, um Lernzeit unabhängig von der macOS-Einstellung dauerhaft im Dark Theme zu verwenden.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             Section("Ziel") {
                 Stepper(
                     "Tagesziel: \(dailyGoalMinutes) min",
