@@ -55,22 +55,41 @@ struct NotchLineView: View {
     let notchWidth: CGFloat
     let topInset: CGFloat
     let margin: CGFloat
+    @State private var pulsing = false
+
+    private var isBreak: Bool {
+        engine.mode == .pomodoro && engine.phase == .pause
+    }
+
+    /// Pausen laufen in hellem, pulsierendem Grün ab, der eigentliche Timer in Rot.
+    private var lineColor: Color {
+        isBreak ? Color(red: 0.3, green: 1.0, blue: 0.55) : Color(red: 1.0, green: 0.23, blue: 0.19)
+    }
 
     var body: some View {
         let shape = NotchOutlineShape(notchWidth: notchWidth, topInset: topInset, margin: margin)
         ZStack {
             shape
-                .stroke(Color.gray.opacity(0.35), style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                .stroke(Color.gray.opacity(0.4), style: StrokeStyle(lineWidth: 4.5, lineCap: .round))
             shape
-                .trim(from: 0, to: max(0.001, engine.ambientProgress))
-                .stroke(engine.ambientColor, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                .trim(from: 0, to: max(0.003, engine.ambientProgress))
+                .stroke(lineColor, style: StrokeStyle(lineWidth: 4.5, lineCap: .round))
+                .shadow(color: lineColor.opacity(0.8), radius: 5)
                 .animation(.linear(duration: 0.5), value: engine.ambientProgress)
+                .opacity(isBreak ? (pulsing ? 1 : 0.35) : 1)
         }
         .opacity(engine.isPaused ? 0.35 : 1)
+        .onAppear {
+            withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) {
+                pulsing = true
+            }
+        }
     }
 }
 
-/// Zeichnet die Kontur der Notch: links oben hinein, unten entlang, rechts wieder hinaus.
+/// Zeichnet die Kontur UM die Notch herum: knapp außerhalb der schwarzen
+/// Fläche, damit die Linie vollständig sichtbar bleibt — links hinunter,
+/// unten entlang, rechts wieder hinauf.
 struct NotchOutlineShape: Shape {
     let notchWidth: CGFloat
     let topInset: CGFloat
@@ -78,11 +97,11 @@ struct NotchOutlineShape: Shape {
 
     func path(in rect: CGRect) -> Path {
         var path = Path()
-        let inset: CGFloat = 2
-        let left = margin + inset
-        let right = margin + notchWidth - inset
-        let bottom = topInset + inset
-        let radius: CGFloat = 9
+        let gap: CGFloat = 3
+        let left = margin - gap
+        let right = margin + notchWidth + gap
+        let bottom = topInset + gap
+        let radius: CGFloat = 11
 
         path.move(to: CGPoint(x: left, y: 0))
         path.addLine(to: CGPoint(x: left, y: bottom - radius))

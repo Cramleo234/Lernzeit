@@ -6,37 +6,8 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		AA000000000000000000001D /* LernzeitWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000012 /* LernzeitWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-/* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		AA000000000000000000001C /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AA000000000000000000000A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AA0000000000000000000013;
-			remoteInfo = LernzeitWidgetExtension;
-		};
-/* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		AA000000000000000000001A /* Embed App Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				AA000000000000000000001D /* LernzeitWidgetExtension.appex in Embed App Extensions */,
-			);
-			name = "Embed App Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
 		AA0000000000000000000001 /* Lernzeit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lernzeit.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		AA0000000000000000000012 /* LernzeitWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LernzeitWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -50,22 +21,10 @@
 			path = Shared;
 			sourceTree = "<group>";
 		};
-		AA0000000000000000000011 /* LernzeitWidget */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = LernzeitWidget;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		AA0000000000000000000003 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AA0000000000000000000015 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -80,7 +39,6 @@
 			children = (
 				AA0000000000000000000002 /* Lernzeit */,
 				AA0000000000000000000010 /* Shared */,
-				AA0000000000000000000011 /* LernzeitWidget */,
 				AA0000000000000000000005 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -89,7 +47,6 @@
 			isa = PBXGroup;
 			children = (
 				AA0000000000000000000001 /* Lernzeit.app */,
-				AA0000000000000000000012 /* LernzeitWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -104,12 +61,10 @@
 				AA0000000000000000000008 /* Sources */,
 				AA0000000000000000000003 /* Frameworks */,
 				AA0000000000000000000009 /* Resources */,
-				AA000000000000000000001A /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				AA000000000000000000001B /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				AA0000000000000000000002 /* Lernzeit */,
@@ -122,29 +77,6 @@
 			productReference = AA0000000000000000000001 /* Lernzeit.app */;
 			productType = "com.apple.product-type.application";
 		};
-		AA0000000000000000000013 /* LernzeitWidgetExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = AA0000000000000000000017 /* Build configuration list for PBXNativeTarget "LernzeitWidgetExtension" */;
-			buildPhases = (
-				AA0000000000000000000014 /* Sources */,
-				AA0000000000000000000015 /* Frameworks */,
-				AA0000000000000000000016 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				AA0000000000000000000011 /* LernzeitWidget */,
-				AA0000000000000000000010 /* Shared */,
-			);
-			name = LernzeitWidgetExtension;
-			packageProductDependencies = (
-			);
-			productName = LernzeitWidgetExtension;
-			productReference = AA0000000000000000000012 /* LernzeitWidgetExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -156,9 +88,6 @@
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					AA0000000000000000000006 = {
-						CreatedOnToolsVersion = 26.0;
-					};
-					AA0000000000000000000013 = {
 						CreatedOnToolsVersion = 26.0;
 					};
 				};
@@ -178,20 +107,12 @@
 			projectRoot = "";
 			targets = (
 				AA0000000000000000000006 /* Lernzeit */,
-				AA0000000000000000000013 /* LernzeitWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		AA0000000000000000000009 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AA0000000000000000000016 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -208,22 +129,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AA0000000000000000000014 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		AA000000000000000000001B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AA0000000000000000000013 /* LernzeitWidgetExtension */;
-			targetProxy = AA000000000000000000001C /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		AA000000000000000000000C /* Debug */ = {
@@ -294,7 +200,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 2.1.0;
+				MARKETING_VERSION = 2.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cramleo.Lernzeit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -320,61 +226,9 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 2.1.0;
+				MARKETING_VERSION = 2.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cramleo.Lernzeit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Release;
-		};
-		AA0000000000000000000018 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
-				ENABLE_HARDENED_RUNTIME = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = LernzeitWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Lernzeit;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@executable_path/../../../../Frameworks",
-				);
-				MARKETING_VERSION = 2.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.cramleo.Lernzeit.LernzeitWidget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Debug;
-		};
-		AA0000000000000000000019 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
-				ENABLE_HARDENED_RUNTIME = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = LernzeitWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Lernzeit;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@executable_path/../../../../Frameworks",
-				);
-				MARKETING_VERSION = 2.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.cramleo.Lernzeit.LernzeitWidget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -397,15 +251,6 @@
 			buildConfigurations = (
 				AA000000000000000000000E /* Debug */,
 				AA000000000000000000000F /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		AA0000000000000000000017 /* Build configuration list for PBXNativeTarget "LernzeitWidgetExtension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				AA0000000000000000000018 /* Debug */,
-				AA0000000000000000000019 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

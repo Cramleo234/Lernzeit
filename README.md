@@ -12,7 +12,6 @@ Minimalistische Lern-Timer-App für macOS mit modernem, durchscheinendem Glas-De
 - 🧿 **Ambient-Fortschritt** — Fortschrittslinie um die Notch (auf Macs mit Notch), Fortschrittsring im Menüleisten-Icon, Restzeit am Dock-Icon
 - 🪟 **Mini-Timer** — kompakter, schwebender Timer, der über allen Fenstern bleibt
 - 🖥️ **Menüleisten-Timer** — Sessions direkt aus der Menüleiste starten, pausieren und stoppen
-- 📐 **Widgets** — Tagesfortschritt, Streak und Wochenübersicht direkt auf dem Schreibtisch
 - 😴 **Ehrliche Zeiten** — automatische Pause bei Bildschirmsperre oder Inaktivität, automatische Fortsetzung
 - 🧊 **Glas-Design** — natives, durchscheinendes Oberflächen-Design, komplett in SwiftUI
 
@@ -22,13 +21,15 @@ Alle Daten bleiben lokal auf deinem Mac (SwiftData).
 
 ```bash
 brew tap cramleo234/tap
+brew trust cramleo234/tap   # einmalig — Homebrew fragt bei Taps außerhalb von homebrew/core
 brew install --cask lernzeit
 ```
 
-> **Hinweis:** Die App ist aktuell nicht notarisiert. Falls macOS den Start blockiert,
-> erlaube sie unter *Systemeinstellungen → Datenschutz & Sicherheit*. Alternativ kannst
-> du beim Installieren `brew install --cask --no-quarantine lernzeit` verwenden — nutze
-> das nur, wenn du der Quelle vertraust (in diesem Fall: dir selbst).
+> **Hinweis zu den Sicherheitsabfragen:** Die Vertrauensabfrage von Homebrew (`brew trust`)
+> ist bei allen Dritt-Taps Standard und lässt sich nicht abschalten. Die App selbst ist
+> aktuell nicht notarisiert (kein Apple-Developer-Programm) — falls macOS den ersten Start
+> blockiert, kannst du sie selbst freigeben unter
+> *Systemeinstellungen → Datenschutz & Sicherheit → „Dennoch öffnen"*.
 
 ## Voraussetzungen
 

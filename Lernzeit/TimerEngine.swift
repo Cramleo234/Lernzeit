@@ -4,7 +4,6 @@ import Foundation
 import SwiftData
 import SwiftUI
 import UserNotifications
-import WidgetKit
 
 enum TimerMode: String, CaseIterable, Identifiable {
     case stopwatch
@@ -196,7 +195,6 @@ final class TimerEngine {
             try? modelContext.save()
             saved = session
             celebrateIfGoalReached(sessionSeconds: focusTime)
-            WidgetCenter.shared.reloadAllTimelines()
         }
         reset()
         return saved
