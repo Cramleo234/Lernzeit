@@ -26,6 +26,7 @@ final class StudySession {
     var endDate: Date
     var duration: TimeInterval
     var modeRaw: String
+    var note: String = ""
     var subject: Subject?
 
     init(startDate: Date, endDate: Date, duration: TimeInterval, modeRaw: String, subject: Subject? = nil) {
@@ -36,5 +37,5 @@ final class StudySession {
         self.subject = subject
     }
 
-    var isPomodoro: Bool { modeRaw == TimerMode.pomodoro.rawValue }
+    var isPomodoro: Bool { modeRaw == "pomodoro" }
 }

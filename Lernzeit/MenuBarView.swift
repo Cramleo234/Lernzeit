@@ -3,7 +3,6 @@ import SwiftUI
 
 struct MenuBarView: View {
     @Environment(TimerEngine.self) private var engine
-    @Environment(\.modelContext) private var context
     @Environment(\.openWindow) private var openWindow
     @Query private var sessions: [StudySession]
 
@@ -38,6 +37,7 @@ struct MenuBarView: View {
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.glassProminent)
+                    .tint(engine.selectedSubject?.color ?? .accentColor)
                 } else {
                     Button {
                         engine.isPaused ? engine.resume() : engine.pause()
@@ -48,7 +48,7 @@ struct MenuBarView: View {
                     .buttonStyle(.glass)
 
                     Button {
-                        engine.stop(in: context)
+                        engine.stop()
                     } label: {
                         Label("Stopp", systemImage: "stop.fill")
                             .frame(maxWidth: .infinity)
@@ -78,6 +78,12 @@ struct MenuBarView: View {
                 .buttonStyle(.link)
                 .font(.callout)
 
+                Button("Mini-Timer") {
+                    openWindow(id: "mini")
+                }
+                .buttonStyle(.link)
+                .font(.callout)
+
                 Spacer()
 
                 Button("Beenden") {
@@ -89,10 +95,11 @@ struct MenuBarView: View {
             }
         }
         .padding(16)
-        .frame(width: 290)
+        .frame(width: 300)
     }
 
     private var statusLine: String {
+        if engine.isAutoPaused { return "Automatisch pausiert" }
         if engine.isPaused { return "Pausiert" }
         if engine.mode == .pomodoro {
             let phase = engine.phase.label

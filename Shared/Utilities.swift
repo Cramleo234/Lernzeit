@@ -1,5 +1,14 @@
 import SwiftUI
 
+enum LernzeitAppGroup {
+    static let id = "group.com.cramleo.Lernzeit"
+}
+
+extension UserDefaults {
+    /// Gemeinsamer Store für App und Widget; fällt ohne App-Group auf Standard zurück.
+    static let lernzeitShared = UserDefaults(suiteName: LernzeitAppGroup.id) ?? .standard
+}
+
 extension Color {
     init(hex: String) {
         let cleaned = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)

@@ -3,15 +3,15 @@ import SwiftUI
 
 @main
 struct LernzeitApp: App {
-    @State private var engine = TimerEngine()
+    @State private var engine: TimerEngine
     private let container: ModelContainer
 
     init() {
-        do {
-            container = try ModelContainer(for: Subject.self, StudySession.self)
-        } catch {
-            fatalError("ModelContainer konnte nicht erstellt werden: \(error)")
-        }
+        let container = DataStore.makeContainer()
+        self.container = container
+        let engine = TimerEngine()
+        engine.configure(context: container.mainContext)
+        _engine = State(initialValue: engine)
     }
 
     var body: some Scene {
@@ -22,14 +22,27 @@ struct LernzeitApp: App {
         .modelContainer(container)
         .defaultSize(width: 980, height: 660)
 
+        WindowGroup(id: "mini") {
+            MiniTimerView()
+                .environment(engine)
+        }
+        .modelContainer(container)
+        .windowStyle(.hiddenTitleBar)
+        .windowResizability(.contentSize)
+        .windowLevel(.floating)
+
+        Settings {
+            SettingsView()
+        }
+
         MenuBarExtra {
             MenuBarView()
                 .environment(engine)
                 .modelContainer(container)
         } label: {
             if engine.isRunning {
-                HStack(spacing: 4) {
-                    Image(systemName: engine.mode == .pomodoro && engine.phase == .pause ? "cup.and.saucer.fill" : "timer")
+                HStack(spacing: 5) {
+                    Image(nsImage: menuBarRingImage(progress: engine.ambientProgress))
                     Text(engine.displayString)
                         .monospacedDigit()
                 }

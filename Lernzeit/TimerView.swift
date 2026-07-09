@@ -3,10 +3,12 @@ import SwiftUI
 
 struct TimerView: View {
     @Environment(TimerEngine.self) private var engine
-    @Environment(\.modelContext) private var context
+    @Environment(\.openWindow) private var openWindow
     @Query(sort: \Subject.createdAt) private var subjects: [Subject]
-    @AppStorage("focusMinutes") private var focusMinutes = 25
-    @AppStorage("breakMinutes") private var breakMinutes = 5
+    @AppStorage(SettingsKeys.focusMinutes) private var focusMinutes = 25
+    @AppStorage(SettingsKeys.breakMinutes) private var breakMinutes = 5
+    @State private var finishedSession: StudySession?
+    @Namespace private var glassNamespace
 
     var body: some View {
         @Bindable var engine = engine
@@ -29,6 +31,15 @@ struct TimerView: View {
 
             controls
 
+            if engine.isAutoPaused {
+                Label(
+                    "Automatisch pausiert — geht bei Aktivität von selbst weiter",
+                    systemImage: "moon.zzz"
+                )
+                .font(.callout)
+                .foregroundStyle(.secondary)
+            }
+
             if engine.mode == .pomodoro && !engine.isRunning {
                 pomodoroSettings
             }
@@ -36,6 +47,17 @@ struct TimerView: View {
             Spacer(minLength: 0)
         }
         .padding(32)
+        .toolbar {
+            ToolbarItem {
+                Button("Mini-Timer", systemImage: "pip") {
+                    openWindow(id: "mini")
+                }
+                .help("Schwebenden Mini-Timer öffnen")
+            }
+        }
+        .sheet(item: $finishedSession) { session in
+            SessionNoteSheet(session: session)
+        }
     }
 
     private var subjectPicker: some View {
@@ -71,7 +93,7 @@ struct TimerView: View {
                 Circle()
                     .trim(from: 0, to: engine.phaseProgress)
                     .stroke(
-                        engine.phase == .focus ? Color.accentColor : Color.green,
+                        engine.ambientColor,
                         style: StrokeStyle(lineWidth: 8, lineCap: .round)
                     )
                     .rotationEffect(.degrees(-90))
@@ -80,7 +102,7 @@ struct TimerView: View {
             }
 
             VStack(spacing: 6) {
-                Text(engine.displayString)
+                Text(engine.isRunning || engine.mode == .pomodoro ? engine.displayString : "Bereit")
                     .font(.system(size: engine.mode == .pomodoro ? 56 : 64, weight: .thin, design: .rounded))
                     .monospacedDigit()
                     .contentTransition(.numericText())
@@ -105,17 +127,21 @@ struct TimerView: View {
             HStack(spacing: 16) {
                 if !engine.isRunning {
                     Button {
-                        engine.start()
+                        withAnimation(.spring(duration: 0.4)) { engine.start() }
                     } label: {
                         Label("Start", systemImage: "play.fill")
                             .frame(minWidth: 130)
                             .padding(.vertical, 4)
                     }
                     .buttonStyle(.glassProminent)
+                    .tint(engine.selectedSubject?.color ?? .accentColor)
                     .controlSize(.extraLarge)
+                    .glassEffectID("primary", in: glassNamespace)
                 } else {
                     Button {
-                        engine.isPaused ? engine.resume() : engine.pause()
+                        withAnimation(.spring(duration: 0.4)) {
+                            engine.isPaused ? engine.resume() : engine.pause()
+                        }
                     } label: {
                         Label(
                             engine.isPaused ? "Weiter" : "Pause",
@@ -126,9 +152,12 @@ struct TimerView: View {
                     }
                     .buttonStyle(.glass)
                     .controlSize(.extraLarge)
+                    .glassEffectID("secondary", in: glassNamespace)
 
                     Button {
-                        engine.stop(in: context)
+                        withAnimation(.spring(duration: 0.4)) {
+                            finishedSession = engine.stop()
+                        }
                     } label: {
                         Label("Beenden", systemImage: "stop.fill")
                             .frame(minWidth: 100)
@@ -137,6 +166,7 @@ struct TimerView: View {
                     .buttonStyle(.glassProminent)
                     .tint(.red)
                     .controlSize(.extraLarge)
+                    .glassEffectID("primary", in: glassNamespace)
                 }
             }
         }
@@ -151,5 +181,34 @@ struct TimerView: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
         .glassEffect(.regular, in: .rect(cornerRadius: 16))
+    }
+}
+
+struct SessionNoteSheet: View {
+    @Bindable var session: StudySession
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var context
+
+    var body: some View {
+        VStack(spacing: 18) {
+            Text("Session gespeichert")
+                .font(.headline)
+            Text("\(formatDuration(session.duration)) · \(session.subject?.name ?? "Ohne Fach")")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+
+            TextField("Was hast du gelernt? (optional)", text: $session.note, axis: .vertical)
+                .lineLimit(3...6)
+                .textFieldStyle(.roundedBorder)
+                .frame(width: 340)
+
+            Button("Fertig") {
+                try? context.save()
+                dismiss()
+            }
+            .buttonStyle(.glassProminent)
+            .keyboardShortcut(.defaultAction)
+        }
+        .padding(28)
     }
 }

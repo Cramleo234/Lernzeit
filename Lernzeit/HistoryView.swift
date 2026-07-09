@@ -4,6 +4,7 @@ import SwiftUI
 struct HistoryView: View {
     @Query(sort: \StudySession.startDate, order: .reverse) private var sessions: [StudySession]
     @Environment(\.modelContext) private var context
+    @State private var noteSession: StudySession?
 
     private var grouped: [(day: Date, items: [StudySession])] {
         let groups = Dictionary(grouping: sessions) {
@@ -37,6 +38,9 @@ struct HistoryView: View {
                 }
             }
             .scrollContentBackground(.hidden)
+            .sheet(item: $noteSession) { session in
+                SessionNoteSheet(session: session)
+            }
         }
     }
 
@@ -51,6 +55,13 @@ struct HistoryView: View {
                 Text("\(session.startDate.formatted(date: .omitted, time: .shortened)) – \(session.endDate.formatted(date: .omitted, time: .shortened))")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                if !session.note.isEmpty {
+                    Text(session.note)
+                        .font(.caption)
+                        .italic()
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
             }
 
             Spacer()
@@ -69,6 +80,9 @@ struct HistoryView: View {
         }
         .padding(.vertical, 4)
         .contextMenu {
+            Button("Notiz bearbeiten", systemImage: "square.and.pencil") {
+                noteSession = session
+            }
             Button("Löschen", systemImage: "trash", role: .destructive) {
                 context.delete(session)
                 try? context.save()
