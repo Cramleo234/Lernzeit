@@ -11,8 +11,10 @@ struct TimerView: View {
 
     var body: some View {
         @Bindable var engine = engine
-        VStack(spacing: 28) {
+        VStack(spacing: 24) {
             Spacer(minLength: 0)
+
+            timerHeader
 
             Picker("Modus", selection: $engine.mode) {
                 ForEach(TimerMode.allCases) { mode in
@@ -49,6 +51,23 @@ struct TimerView: View {
         .sheet(item: $finishedSession) { session in
             SessionNoteSheet(session: session)
         }
+    }
+
+    private var timerHeader: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 10) {
+                Image(systemName: "timer")
+                    .symbolRenderingMode(.hierarchical)
+                Text("Lern-Timer")
+            }
+            .font(.system(size: 34, weight: .semibold, design: .rounded))
+
+            Text("Stoppuhr oder Pomodoro starten – die Zeit bleibt hier sichtbar.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+        }
+        .multilineTextAlignment(.center)
+        .accessibilityElement(children: .combine)
     }
 
     private var subjectPicker: some View {
@@ -93,24 +112,35 @@ struct TimerView: View {
             }
 
             VStack(spacing: 6) {
-                Text(engine.isRunning || engine.mode == .pomodoro ? engine.displayString : "Bereit")
+                Text(engine.displayString)
                     .font(.system(size: engine.mode == .pomodoro ? 56 : 64, weight: .thin, design: .rounded))
                     .monospacedDigit()
                     .contentTransition(.numericText())
 
-                if engine.mode == .pomodoro {
-                    Text(engine.isRunning ? engine.phase.label : "Bereit")
-                        .font(.callout)
+                Text(timerStatusText)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+
+                if engine.mode == .pomodoro && engine.completedPomodoros > 0 {
+                    Text("🍅 × \(engine.completedPomodoros)")
+                        .font(.caption)
                         .foregroundStyle(.secondary)
-                    if engine.completedPomodoros > 0 {
-                        Text("🍅 × \(engine.completedPomodoros)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
                 }
             }
         }
         .frame(height: engine.mode == .pomodoro ? 290 : 120)
+    }
+
+    private var timerStatusText: String {
+        if engine.isAutoPaused { return "Automatisch pausiert" }
+        if engine.isPaused { return "Pausiert" }
+
+        switch engine.mode {
+        case .stopwatch:
+            return engine.isRunning ? "Stoppuhr läuft" : "Stoppuhr bereit"
+        case .pomodoro:
+            return engine.isRunning ? engine.phase.label : "Pomodoro bereit"
+        }
     }
 
     private var controls: some View {
@@ -120,8 +150,8 @@ struct TimerView: View {
                     Button {
                         withAnimation(.spring(duration: 0.4)) { engine.start() }
                     } label: {
-                        Label("Start", systemImage: "play.fill")
-                            .frame(minWidth: 130)
+                        Label("Timer starten", systemImage: "play.fill")
+                            .frame(minWidth: 150)
                             .padding(.vertical, 4)
                     }
                     .buttonStyle(.glassProminent)
