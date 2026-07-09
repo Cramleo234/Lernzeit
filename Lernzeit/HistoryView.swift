@@ -70,8 +70,8 @@ struct HistoryView: View {
 
             Spacer()
 
-            if session.isPomodoro {
-                Text("Pomodoro")
+            if session.isPomodoro || session.isCountdown {
+                Text(session.isCountdown ? "Timer" : "Pomodoro")
                     .font(.caption2)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)

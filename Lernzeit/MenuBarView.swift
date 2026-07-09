@@ -118,6 +118,9 @@ struct MenuBarView: View {
             let subject = engine.selectedSubject?.name
             return subject.map { "\(phase) · \($0)" } ?? phase
         }
+        if engine.mode == .countdown {
+            return engine.selectedSubject.map { "Timer · \($0)" } ?? "Timer läuft"
+        }
         return engine.selectedSubject?.name ?? "Stoppuhr läuft"
     }
 }
