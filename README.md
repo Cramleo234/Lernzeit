@@ -1,6 +1,6 @@
 # Lernzeit 🎓
 
-Minimalistische Lern-Timer-App für macOS mit Apples **Liquid Glass** Design (macOS 26 „Tahoe").
+Minimalistische Lern-Timer-App für macOS mit modernem, durchscheinendem Glas-Design.
 
 ## Features
 
@@ -9,7 +9,7 @@ Minimalistische Lern-Timer-App für macOS mit Apples **Liquid Glass** Design (ma
 - 📊 **Statistiken** — Lernzeit pro Tag/Woche, 14-Tage-Diagramm, Aufschlüsselung nach Fächern
 - 🔥 **Tagesziele & Streaks** — tägliches Lernziel setzen und Serien aufbauen
 - 🖥️ **Menüleisten-Timer** — Sessions direkt aus der Menüleiste starten, pausieren und stoppen
-- 🧊 **Liquid Glass** — natives Glas-Design mit `glassEffect`, komplett in SwiftUI
+- 🧊 **Glas-Design** — natives, durchscheinendes Oberflächen-Design, komplett in SwiftUI
 
 Alle Daten bleiben lokal auf deinem Mac (SwiftData).
 
@@ -21,12 +21,13 @@ brew install --cask lernzeit
 ```
 
 > **Hinweis:** Die App ist aktuell nicht notarisiert. Falls macOS den Start blockiert,
-> installiere mit `brew install --cask --no-quarantine lernzeit` oder erlaube die App
-> unter *Systemeinstellungen → Datenschutz & Sicherheit*.
+> erlaube sie unter *Systemeinstellungen → Datenschutz & Sicherheit*. Alternativ kannst
+> du beim Installieren `brew install --cask --no-quarantine lernzeit` verwenden — nutze
+> das nur, wenn du der Quelle vertraust (in diesem Fall: dir selbst).
 
 ## Voraussetzungen
 
-- macOS 26 (Tahoe) oder neuer
+- macOS 26 oder neuer
 
 ## Selbst bauen
 
@@ -41,3 +42,9 @@ Benötigt Xcode 26+.
 ## Lizenz
 
 [MIT](LICENSE)
+
+---
+
+Lernzeit ist ein unabhängiges, privates Projekt und steht in keiner Verbindung zu Apple Inc.
+und wird nicht von Apple gesponsert, autorisiert oder unterstützt. Apple, macOS und alle
+zugehörigen Marken sind Eigentum von Apple Inc.
