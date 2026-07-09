@@ -3,7 +3,6 @@ import SwiftUI
 
 struct TimerView: View {
     @Environment(TimerEngine.self) private var engine
-    @Environment(\.openWindow) private var openWindow
     @Query(sort: \Subject.createdAt) private var subjects: [Subject]
     @AppStorage(SettingsKeys.focusMinutes) private var focusMinutes = 25
     @AppStorage(SettingsKeys.breakMinutes) private var breakMinutes = 5
@@ -47,14 +46,6 @@ struct TimerView: View {
             Spacer(minLength: 0)
         }
         .padding(32)
-        .toolbar {
-            ToolbarItem {
-                Button("Mini-Timer", systemImage: "pip") {
-                    openWindow(id: "mini")
-                }
-                .help("Schwebenden Mini-Timer öffnen")
-            }
-        }
         .sheet(item: $finishedSession) { session in
             SessionNoteSheet(session: session)
         }

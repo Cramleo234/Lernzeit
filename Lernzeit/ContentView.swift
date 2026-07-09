@@ -40,6 +40,14 @@ struct ContentView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background { AppBackground() }
             .navigationTitle((section ?? .timer).rawValue)
+            .toolbar {
+                ToolbarItem {
+                    SettingsLink {
+                        Image(systemName: "gearshape")
+                    }
+                    .help("Einstellungen öffnen")
+                }
+            }
         }
     }
 }

@@ -70,28 +70,40 @@ struct MenuBarView: View {
             }
             .font(.callout)
 
-            HStack {
-                Button("Lernzeit öffnen") {
-                    openWindow(id: "main")
-                    NSApp.activate(ignoringOtherApps: true)
-                }
-                .buttonStyle(.link)
-                .font(.callout)
+            VStack(spacing: 8) {
+                HStack {
+                    Button("Lernzeit öffnen") {
+                        openWindow(id: "main")
+                        NSApp.activate(ignoringOtherApps: true)
+                    }
+                    .buttonStyle(.link)
+                    .font(.callout)
 
-                Button("Mini-Timer") {
-                    openWindow(id: "mini")
-                }
-                .buttonStyle(.link)
-                .font(.callout)
+                    Spacer()
 
-                Spacer()
-
-                Button("Beenden") {
-                    NSApp.terminate(nil)
+                    Button("Mini-Timer") {
+                        openWindow(id: "mini")
+                    }
+                    .buttonStyle(.link)
+                    .font(.callout)
                 }
-                .buttonStyle(.link)
-                .font(.callout)
-                .foregroundStyle(.secondary)
+
+                HStack {
+                    SettingsLink {
+                        Text("Einstellungen")
+                    }
+                    .buttonStyle(.link)
+                    .font(.callout)
+
+                    Spacer()
+
+                    Button("Beenden") {
+                        NSApp.terminate(nil)
+                    }
+                    .buttonStyle(.link)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                }
             }
         }
         .padding(16)
