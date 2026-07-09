@@ -2,19 +2,22 @@ import Foundation
 import SwiftData
 
 enum DataStore {
-    /// Container im App-Group-Container, damit auch das Widget lesen kann.
-    /// Fällt auf den Standard-Speicherort zurück, wenn die App-Group nicht verfügbar ist.
+    /// Gemeinsamer Speicherort für App und Widget: ein normaler Ordner in
+    /// Application Support — kein Group Container, keine System-Rückfrage.
+    static var storeDirectory: URL {
+        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        return base.appendingPathComponent("Lernzeit", isDirectory: true)
+    }
+
     static func makeContainer() -> ModelContainer {
         let schema = Schema([Subject.self, StudySession.self])
-        if let groupURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: LernzeitAppGroup.id
-        ) {
-            let storeURL = groupURL.appendingPathComponent("Lernzeit.store")
-            migrateLegacyStoreIfNeeded(to: storeURL)
-            let config = ModelConfiguration(url: storeURL)
-            if let container = try? ModelContainer(for: schema, configurations: [config]) {
-                return container
-            }
+        let fm = FileManager.default
+        try? fm.createDirectory(at: storeDirectory, withIntermediateDirectories: true)
+        let storeURL = storeDirectory.appendingPathComponent("Lernzeit.store")
+        migrateLegacyGroupStoreIfNeeded(to: storeURL)
+        let config = ModelConfiguration(url: storeURL)
+        if let container = try? ModelContainer(for: schema, configurations: [config]) {
+            return container
         }
         do {
             return try ModelContainer(for: schema)
@@ -23,18 +26,23 @@ enum DataStore {
         }
     }
 
-    /// Übernimmt einmalig den v1-Store aus Application Support in den App-Group-Container.
-    private static func migrateLegacyStoreIfNeeded(to storeURL: URL) {
+    /// Einmalige Übernahme der v2.0.x-Daten aus dem früheren Group Container.
+    /// Läuft dank Markerdatei garantiert nur ein einziges Mal und scheitert
+    /// still, falls macOS den Zugriff nicht (mehr) erlaubt — es erscheint
+    /// dadurch nie erneut eine Berechtigungs-Abfrage.
+    private static func migrateLegacyGroupStoreIfNeeded(to storeURL: URL) {
         let fm = FileManager.default
+        let marker = storeDirectory.appendingPathComponent(".legacy-migration-done")
+        guard !fm.fileExists(atPath: marker.path) else { return }
+        defer { fm.createFile(atPath: marker.path, contents: nil) }
         guard !fm.fileExists(atPath: storeURL.path) else { return }
-        let legacyBase = URL.applicationSupportDirectory.appendingPathComponent("default.store")
-        guard fm.fileExists(atPath: legacyBase.path) else { return }
+
+        let legacyStore = fm.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/Group Containers/group.com.cramleo.Lernzeit/Lernzeit.store")
         for suffix in ["", "-shm", "-wal"] {
-            let source = URL(fileURLWithPath: legacyBase.path + suffix)
+            let source = URL(fileURLWithPath: legacyStore.path + suffix)
             let target = URL(fileURLWithPath: storeURL.path + suffix)
-            if fm.fileExists(atPath: source.path) {
-                try? fm.copyItem(at: source, to: target)
-            }
+            try? fm.copyItem(at: source, to: target)
         }
     }
 }

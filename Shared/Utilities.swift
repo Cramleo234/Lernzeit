@@ -1,12 +1,9 @@
 import SwiftUI
 
-enum LernzeitAppGroup {
-    static let id = "group.com.cramleo.Lernzeit"
-}
-
 extension UserDefaults {
-    /// Gemeinsamer Store für App und Widget; fällt ohne App-Group auf Standard zurück.
-    static let lernzeitShared = UserDefaults(suiteName: LernzeitAppGroup.id) ?? .standard
+    /// Gemeinsame Suite für App und Widget — eine normale Plist in
+    /// ~/Library/Preferences, bewusst KEIN Group Container (keine System-Rückfrage).
+    static let lernzeitShared = UserDefaults(suiteName: "com.cramleo.Lernzeit.shared") ?? .standard
 }
 
 extension Color {

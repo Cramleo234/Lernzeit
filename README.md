@@ -36,22 +36,13 @@ brew install --cask lernzeit
 
 ## Selbst bauen
 
-Mit Apple-Developer-Account: Projekt in Xcode öffnen, Team auswählen, bauen — fertig.
-
-Ohne Account (die App nutzt App Groups fürs Widget, daher ohne Signierung bauen und ad-hoc nachsignieren):
-
 ```bash
 git clone https://github.com/Cramleo234/Lernzeit.git
 cd Lernzeit
-xcodebuild -project Lernzeit.xcodeproj -target Lernzeit -configuration Release build \
-  CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
-codesign --force --sign - -o runtime --entitlements LernzeitWidget.entitlements \
-  build/Release/Lernzeit.app/Contents/PlugIns/LernzeitWidgetExtension.appex
-codesign --force --sign - -o runtime --entitlements Lernzeit.entitlements \
-  build/Release/Lernzeit.app
+xcodebuild -project Lernzeit.xcodeproj -target Lernzeit -configuration Release build
 ```
 
-Benötigt Xcode 26+.
+Benötigt Xcode 26+. Kein Apple-Developer-Account nötig.
 
 ## Lizenz
 
