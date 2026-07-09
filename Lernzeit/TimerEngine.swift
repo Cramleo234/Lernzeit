@@ -7,10 +7,17 @@ import UserNotifications
 
 enum TimerMode: String, CaseIterable, Identifiable {
     case stopwatch
+    case countdown
     case pomodoro
 
     var id: String { rawValue }
-    var label: String { self == .stopwatch ? "Stoppuhr" : "Pomodoro" }
+    var label: String {
+        switch self {
+        case .stopwatch: "Stoppuhr"
+        case .countdown: "Timer"
+        case .pomodoro: "Pomodoro"
+        }
+    }
 }
 
 enum PomodoroPhase {
@@ -23,6 +30,7 @@ enum PomodoroPhase {
 enum SettingsKeys {
     static let focusMinutes = "focusMinutes"
     static let breakMinutes = "breakMinutes"
+    static let customTimerMinutes = "customTimerMinutes"
     static let dailyGoalMinutes = "dailyGoalMinutes"
     static let appAppearance = "appAppearance"
     static let soundsEnabled = "soundsEnabled"
@@ -86,13 +94,19 @@ final class TimerEngine {
         return TimeInterval(minutes > 0 ? minutes : 5) * 60
     }
 
+    var customTimerDuration: TimeInterval {
+        let minutes = UserDefaults.standard.integer(forKey: SettingsKeys.customTimerMinutes)
+        return TimeInterval(minutes > 0 ? minutes : 25) * 60
+    }
+
     var goalMinutes: Int {
         let value = UserDefaults.lernzeitShared.integer(forKey: SettingsKeys.dailyGoalMinutes)
         return value > 0 ? value : 120
     }
 
     var currentPhaseDuration: TimeInterval {
-        phase == .focus ? focusDuration : breakDuration
+        if mode == .countdown { return customTimerDuration }
+        return phase == .focus ? focusDuration : breakDuration
     }
 
     var phaseElapsed: TimeInterval {
@@ -102,7 +116,12 @@ final class TimerEngine {
     }
 
     var displayTime: TimeInterval {
-        mode == .pomodoro ? max(0, currentPhaseDuration - phaseElapsed) : phaseElapsed
+        switch mode {
+        case .stopwatch:
+            return phaseElapsed
+        case .countdown, .pomodoro:
+            return max(0, currentPhaseDuration - phaseElapsed)
+        }
     }
 
     var displayString: String {
@@ -110,20 +129,26 @@ final class TimerEngine {
     }
 
     var phaseProgress: Double {
-        guard mode == .pomodoro, currentPhaseDuration > 0 else { return 0 }
+        guard mode != .stopwatch, currentPhaseDuration > 0 else { return 0 }
         return min(1, phaseElapsed / currentPhaseDuration)
     }
 
     /// Reine Lernzeit der laufenden Session (Pomodoro-Pausen zählen nicht mit).
     var totalFocusTime: TimeInterval {
-        if mode == .stopwatch { return phaseElapsed }
-        return focusAccumulated + (phase == .focus ? min(phaseElapsed, focusDuration) : 0)
+        switch mode {
+        case .stopwatch:
+            return phaseElapsed
+        case .countdown:
+            return min(phaseElapsed, customTimerDuration)
+        case .pomodoro:
+            return focusAccumulated + (phase == .focus ? min(phaseElapsed, focusDuration) : 0)
+        }
     }
 
     /// Fortschritt für Notch-Linie, Menüleisten-Ring und Dock:
-    /// Pomodoro zeigt die laufende Phase, die Stoppuhr den Weg zum Tagesziel.
+    /// Pomodoro und Timer zeigen die laufende Phase, die Stoppuhr den Weg zum Tagesziel.
     var ambientProgress: Double {
-        if mode == .pomodoro { return phaseProgress }
+        if mode != .stopwatch { return phaseProgress }
         let goal = Double(goalMinutes) * 60
         guard goal > 0 else { return 0 }
         return min(1, (todayBaseSeconds + totalFocusTime) / goal)
@@ -151,7 +176,7 @@ final class TimerEngine {
         todayBaseSeconds = fetchTodayTotal()
         startTimer()
         syncAmbient()
-        if mode == .pomodoro { requestNotificationPermission() }
+        if mode != .stopwatch { requestNotificationPermission() }
     }
 
     func pause(auto: Bool = false) {
@@ -179,26 +204,41 @@ final class TimerEngine {
         let focusTime: TimeInterval
         if mode == .stopwatch {
             focusTime = phaseAccumulated
+        } else if mode == .countdown {
+            focusTime = min(phaseAccumulated, customTimerDuration)
         } else {
             focusTime = focusAccumulated + (phase == .focus ? min(phaseAccumulated, focusDuration) : 0)
         }
 
         var saved: StudySession?
-        if focusTime >= 5, let modelContext {
-            let session = StudySession(
-                startDate: sessionStart,
-                endDate: .now,
-                duration: focusTime,
-                modeRaw: mode.rawValue,
-                subject: selectedSubject
-            )
-            modelContext.insert(session)
-            try? modelContext.save()
-            saved = session
-            celebrateIfGoalReached(sessionSeconds: focusTime)
+        if focusTime >= 5 {
+            saved = saveSession(startDate: sessionStart, duration: focusTime)
+            if saved != nil {
+                celebrateIfGoalReached(sessionSeconds: focusTime)
+            }
         }
         reset()
         return saved
+    }
+
+    @discardableResult
+    private func saveSession(startDate: Date, duration: TimeInterval) -> StudySession? {
+        guard let modelContext else { return nil }
+        let session = StudySession(
+            startDate: startDate,
+            endDate: .now,
+            duration: duration,
+            modeRaw: mode.rawValue,
+            subject: selectedSubject
+        )
+        modelContext.insert(session)
+        do {
+            try modelContext.save()
+            return session
+        } catch {
+            modelContext.delete(session)
+            return nil
+        }
     }
 
     private func reset() {
@@ -252,9 +292,30 @@ final class TimerEngine {
             return
         }
 
+        if mode == .countdown, phaseElapsed >= customTimerDuration {
+            finishCountdown()
+            return
+        }
+
         if mode == .pomodoro, phaseElapsed >= currentPhaseDuration {
             advancePhase()
         }
+    }
+
+    private func finishCountdown() {
+        guard let sessionStart else { return }
+        phaseAccumulated = customTimerDuration
+        let duration = customTimerDuration
+        let saved = saveSession(startDate: sessionStart, duration: duration)
+        if saved != nil {
+            celebrateIfGoalReached(sessionSeconds: duration)
+        }
+        playSound()
+        notify(
+            title: "Timer fertig",
+            body: "Dein frei eingestellter Timer ist abgelaufen."
+        )
+        reset()
     }
 
     private func advancePhase() {

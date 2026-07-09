@@ -11,7 +11,7 @@ struct MiniTimerView: View {
                 .fill(engine.isRunning ? engine.ambientColor : Color.secondary.opacity(0.4))
                 .frame(width: 9, height: 9)
 
-            Text(engine.isRunning ? engine.displayString : "Bereit")
+            Text(engine.displayString)
                 .font(.system(size: 26, weight: .light, design: .rounded))
                 .monospacedDigit()
                 .contentTransition(.numericText())

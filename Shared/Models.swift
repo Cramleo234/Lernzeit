@@ -38,4 +38,5 @@ final class StudySession {
     }
 
     var isPomodoro: Bool { modeRaw == "pomodoro" }
+    var isCountdown: Bool { modeRaw == "countdown" }
 }

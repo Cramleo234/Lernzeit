@@ -6,6 +6,7 @@ struct TimerView: View {
     @Query(sort: \Subject.createdAt) private var subjects: [Subject]
     @AppStorage(SettingsKeys.focusMinutes) private var focusMinutes = 25
     @AppStorage(SettingsKeys.breakMinutes) private var breakMinutes = 5
+    @AppStorage(SettingsKeys.customTimerMinutes) private var customTimerMinutes = 25
     @State private var finishedSession: StudySession?
     @Namespace private var glassNamespace
 
@@ -23,7 +24,7 @@ struct TimerView: View {
             }
             .pickerStyle(.segmented)
             .labelsHidden()
-            .frame(width: 240)
+            .frame(width: 320)
             .disabled(engine.isRunning)
 
             subjectPicker
@@ -41,8 +42,8 @@ struct TimerView: View {
                 .foregroundStyle(.secondary)
             }
 
-            if engine.mode == .pomodoro && !engine.isRunning {
-                pomodoroSettings
+            if !engine.isRunning {
+                timerSettings
             }
 
             Spacer(minLength: 0)
@@ -62,7 +63,7 @@ struct TimerView: View {
             }
             .font(.system(size: 34, weight: .semibold, design: .rounded))
 
-            Text("Stoppuhr oder Pomodoro starten – die Zeit bleibt hier sichtbar.")
+            Text("Stoppuhr, eigenen Timer oder Pomodoro starten.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }
@@ -96,7 +97,7 @@ struct TimerView: View {
 
     private var timeDisplay: some View {
         ZStack {
-            if engine.mode == .pomodoro {
+            if engine.mode != .stopwatch {
                 Circle()
                     .stroke(.quaternary, lineWidth: 8)
                     .frame(width: 270, height: 270)
@@ -113,7 +114,7 @@ struct TimerView: View {
 
             VStack(spacing: 6) {
                 Text(engine.displayString)
-                    .font(.system(size: engine.mode == .pomodoro ? 56 : 64, weight: .thin, design: .rounded))
+                    .font(.system(size: engine.mode == .stopwatch ? 64 : 56, weight: .thin, design: .rounded))
                     .monospacedDigit()
                     .contentTransition(.numericText())
 
@@ -128,7 +129,7 @@ struct TimerView: View {
                 }
             }
         }
-        .frame(height: engine.mode == .pomodoro ? 290 : 120)
+        .frame(height: engine.mode == .stopwatch ? 120 : 290)
     }
 
     private var timerStatusText: String {
@@ -138,6 +139,8 @@ struct TimerView: View {
         switch engine.mode {
         case .stopwatch:
             return engine.isRunning ? "Stoppuhr läuft" : "Stoppuhr bereit"
+        case .countdown:
+            return engine.isRunning ? "Timer läuft" : "Timer bereit"
         case .pomodoro:
             return engine.isRunning ? engine.phase.label : "Pomodoro bereit"
         }
@@ -193,6 +196,18 @@ struct TimerView: View {
         }
     }
 
+    @ViewBuilder
+    private var timerSettings: some View {
+        switch engine.mode {
+        case .countdown:
+            countdownSettings
+        case .pomodoro:
+            pomodoroSettings
+        case .stopwatch:
+            EmptyView()
+        }
+    }
+
     private var pomodoroSettings: some View {
         HStack(spacing: 24) {
             Stepper("Fokus: \(focusMinutes) min", value: $focusMinutes, in: 5...90, step: 5)
@@ -202,6 +217,31 @@ struct TimerView: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
         .glassEffect(.regular, in: .rect(cornerRadius: 16))
+    }
+
+    private var countdownSettings: some View {
+        HStack(spacing: 12) {
+            Stepper("", value: $customTimerMinutes, in: 1...600, step: 1)
+                .labelsHidden()
+
+            TextField("Minuten", value: $customTimerMinutes, format: .number)
+                .textFieldStyle(.roundedBorder)
+                .monospacedDigit()
+                .frame(width: 70)
+                .onSubmit { clampCustomTimerMinutes() }
+                .onChange(of: customTimerMinutes) { _, _ in clampCustomTimerMinutes() }
+
+            Text("Minuten")
+                .foregroundStyle(.secondary)
+        }
+        .font(.callout)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+        .glassEffect(.regular, in: .rect(cornerRadius: 16))
+    }
+
+    private func clampCustomTimerMinutes() {
+        customTimerMinutes = min(600, max(1, customTimerMinutes))
     }
 }
 
