@@ -11,7 +11,7 @@ Minimalistische Lern-Timer-App für macOS mit modernem, durchscheinendem Glas-De
 - 📝 **Notizen** — nach jeder Session festhalten, was du gelernt hast
 - 📊 **Statistiken** — Tages-/Wochen-/Monats-Diagramme, 6-Monats-Heatmap, Rekorde, beste Lern-Tageszeit, Aufschlüsselung nach Fächern
 - 🔥 **Tagesziele & Streaks** — tägliches Lernziel setzen, Serien aufbauen, Benachrichtigung bei Zielerreichung
-- 🧿 **Ambient-Fortschritt** — Fortschrittslinie um die Notch (auf Macs mit Notch), Fortschrittsring im Menüleisten-Icon, Restzeit am Dock-Icon
+- 🧿 **Ambient-Fortschritt** — Fortschrittslinie um die Notch (auf Macs mit Notch) und Fortschrittsring im Menüleisten-Icon
 - 🪟 **Mini-Timer** — kompakter, schwebender Timer, der über allen Fenstern bleibt
 - 🖥️ **Menüleisten-Timer** — Sessions direkt aus der Menüleiste starten, pausieren und stoppen
 - 😴 **Ehrliche Zeiten** — automatische Pause bei Bildschirmsperre oder Inaktivität, automatische Fortsetzung

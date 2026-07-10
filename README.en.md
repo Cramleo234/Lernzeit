@@ -11,7 +11,7 @@ A minimalist study timer for macOS with a modern, translucent glass design.
 - 📝 **Notes** — record what you studied after each session
 - 📊 **Statistics** — daily, weekly, and monthly charts; a six-month heatmap; records; your most productive time of day; and breakdowns by subject
 - 🔥 **Daily goals & streaks** — set a daily study goal, build streaks, and receive a notification when you reach your goal
-- 🧿 **Ambient progress** — a progress line around the notch on supported Macs, a progress ring in the menu bar icon, and the remaining time in the Dock icon
+- 🧿 **Ambient progress** — a progress line around the notch on supported Macs and a progress ring in the menu bar icon
 - 🪟 **Mini timer** — a compact floating timer that stays above other windows
 - 🖥️ **Menu bar timer** — start, pause, and stop sessions directly from the menu bar
 - 😴 **Honest timing** — automatically pauses when the screen is locked or the Mac is inactive, then resumes automatically

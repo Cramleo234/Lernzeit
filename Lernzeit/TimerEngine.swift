@@ -36,7 +36,6 @@ enum SettingsKeys {
     static let dailyGoalMinutes = "dailyGoalMinutes"
     static let appAppearance = "appAppearance"
     static let soundsEnabled = "soundsEnabled"
-    static let dockBadgeEnabled = "dockBadgeEnabled"
     static let notchLineEnabled = "notchLineEnabled"
     static let autoPauseOnLock = "autoPauseOnLock"
     static let autoPauseIdleMinutes = "autoPauseIdleMinutes"
@@ -68,7 +67,6 @@ final class TimerEngine {
     init() {
         UserDefaults.standard.register(defaults: [
             SettingsKeys.soundsEnabled: true,
-            SettingsKeys.dockBadgeEnabled: true,
             SettingsKeys.notchLineEnabled: true,
             SettingsKeys.autoPauseOnLock: true,
             SettingsKeys.autoPauseIdleMinutes: 3,
@@ -147,7 +145,7 @@ final class TimerEngine {
         }
     }
 
-    /// Fortschritt für Notch-Linie, Menüleisten-Ring und Dock:
+    /// Fortschritt für Notch-Linie und Menüleisten-Ring:
     /// Pomodoro und Timer zeigen die laufende Phase, die Stoppuhr den Weg zum Tagesziel.
     var ambientProgress: Double {
         if mode != .stopwatch { return phaseProgress }
@@ -255,7 +253,6 @@ final class TimerEngine {
         sessionStart = nil
         stopTimer()
         syncAmbient()
-        updateDockBadge()
     }
 
     // MARK: - Timer-Tick
@@ -277,7 +274,6 @@ final class TimerEngine {
 
     private func tick() {
         now = .now
-        updateDockBadge()
         syncAmbient()
         guard isRunning else { return }
 
@@ -372,7 +368,7 @@ final class TimerEngine {
             .min() ?? 0
     }
 
-    // MARK: - Ambient (Notch, Dock)
+    // MARK: - Ambient
 
     private func syncAmbient() {
         let notchEnabled = UserDefaults.standard.bool(forKey: SettingsKeys.notchLineEnabled)
@@ -381,11 +377,6 @@ final class TimerEngine {
         } else {
             notchOverlay.hide()
         }
-    }
-
-    private func updateDockBadge() {
-        let enabled = UserDefaults.standard.bool(forKey: SettingsKeys.dockBadgeEnabled)
-        NSApp.dockTile.badgeLabel = (enabled && isRunning) ? displayString : nil
     }
 
     // MARK: - Ziel & Feedback
