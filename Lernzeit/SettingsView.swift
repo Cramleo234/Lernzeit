@@ -6,7 +6,6 @@ struct SettingsView: View {
     @AppStorage(SettingsKeys.focusMinutes) private var focusMinutes = 25
     @AppStorage(SettingsKeys.breakMinutes) private var breakMinutes = 5
     @AppStorage(SettingsKeys.soundsEnabled) private var soundsEnabled = true
-    @AppStorage(SettingsKeys.dockBadgeEnabled) private var dockBadgeEnabled = true
     @AppStorage(SettingsKeys.notchLineEnabled) private var notchLineEnabled = true
     @AppStorage(SettingsKeys.autoPauseOnLock) private var autoPauseOnLock = true
     @AppStorage(SettingsKeys.autoPauseIdleMinutes) private var autoPauseIdleMinutes = 3
@@ -54,7 +53,6 @@ struct SettingsView: View {
 
             Section(localized("settings.display_sounds_section")) {
                 Toggle(localized("settings.sound_phase_change"), isOn: $soundsEnabled)
-                Toggle(localized("settings.dock_time_remaining"), isOn: $dockBadgeEnabled)
                 Toggle(localized("settings.notch_progress"), isOn: $notchLineEnabled)
                     .disabled(!hasNotch)
                 Label(

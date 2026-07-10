@@ -55,7 +55,6 @@
 "settings.break_minutes" = "Break: %d min";
 "settings.daily_goal" = "Daily goal: %d min";
 "settings.display_sounds_section" = "Display & Sounds";
-"settings.dock_time_remaining" = "Time remaining on Dock icon";
 "settings.focus_minutes" = "Focus: %d min";
 "settings.goal_section" = "Goal";
 "settings.no_notch" = "No display with a notch was detected. Progress will appear as a ring in the menu bar icon instead.";

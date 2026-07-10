@@ -55,7 +55,6 @@
 "settings.break_minutes" = "Pause: %d min";
 "settings.daily_goal" = "Tagesziel: %d min";
 "settings.display_sounds_section" = "Anzeige & Töne";
-"settings.dock_time_remaining" = "Restzeit am Dock-Icon";
 "settings.focus_minutes" = "Fokus: %d min";
 "settings.goal_section" = "Ziel";
 "settings.no_notch" = "Kein Display mit Notch erkannt. Der Fortschritt wird stattdessen als Ring im Menüleisten-Icon angezeigt.";
