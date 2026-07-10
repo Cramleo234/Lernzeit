@@ -16,7 +16,7 @@ struct MenuBarView: View {
     var body: some View {
         VStack(spacing: 14) {
             VStack(spacing: 2) {
-                Text(engine.isRunning ? engine.displayString : "Bereit zum Lernen")
+                Text(engine.isRunning ? engine.displayString : localized("menu.ready"))
                     .font(engine.isRunning ? .system(size: 30, weight: .light, design: .rounded) : .headline)
                     .monospacedDigit()
 
@@ -33,7 +33,7 @@ struct MenuBarView: View {
                     Button {
                         engine.start()
                     } label: {
-                        Label("Start", systemImage: "play.fill")
+                        Label(localized("menu.start"), systemImage: "play.fill")
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.glassProminent)
@@ -42,7 +42,10 @@ struct MenuBarView: View {
                     Button {
                         engine.isPaused ? engine.resume() : engine.pause()
                     } label: {
-                        Label(engine.isPaused ? "Weiter" : "Pause", systemImage: engine.isPaused ? "play.fill" : "pause.fill")
+                        Label(
+                            localized(engine.isPaused ? "common.resume" : "common.pause"),
+                            systemImage: engine.isPaused ? "play.fill" : "pause.fill"
+                        )
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.glass)
@@ -50,7 +53,7 @@ struct MenuBarView: View {
                     Button {
                         engine.stop()
                     } label: {
-                        Label("Stopp", systemImage: "stop.fill")
+                        Label(localized("menu.stop"), systemImage: "stop.fill")
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.glassProminent)
@@ -62,7 +65,7 @@ struct MenuBarView: View {
             Divider()
 
             HStack {
-                Text("Heute gelernt")
+                Text(localized("menu.studied_today"))
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text(formatDuration(todayTotal))
@@ -72,7 +75,7 @@ struct MenuBarView: View {
 
             VStack(spacing: 8) {
                 HStack {
-                    Button("Lernzeit öffnen") {
+                    Button(localized("menu.open_app")) {
                         openWindow(id: "main")
                         NSApp.activate(ignoringOtherApps: true)
                     }
@@ -81,7 +84,7 @@ struct MenuBarView: View {
 
                     Spacer()
 
-                    Button("Mini-Timer") {
+                    Button(localized("menu.mini_timer")) {
                         openWindow(id: "mini")
                     }
                     .buttonStyle(.link)
@@ -90,14 +93,14 @@ struct MenuBarView: View {
 
                 HStack {
                     SettingsLink {
-                        Text("Einstellungen")
+                        Text(localized("navigation.settings"))
                     }
                     .buttonStyle(.link)
                     .font(.callout)
 
                     Spacer()
 
-                    Button("Beenden") {
+                    Button(localized("menu.quit")) {
                         NSApp.terminate(nil)
                     }
                     .buttonStyle(.link)
@@ -111,16 +114,17 @@ struct MenuBarView: View {
     }
 
     private var statusLine: String {
-        if engine.isAutoPaused { return "Automatisch pausiert" }
-        if engine.isPaused { return "Pausiert" }
+        if engine.isAutoPaused { return localized("status.auto_paused") }
+        if engine.isPaused { return localized("status.paused") }
         if engine.mode == .pomodoro {
             let phase = engine.phase.label
             let subject = engine.selectedSubject?.name
-            return subject.map { "\(phase) · \($0)" } ?? phase
+            return subject.map { localized("status.phase_subject", phase, $0) } ?? phase
         }
         if engine.mode == .countdown {
-            return engine.selectedSubject.map { "Timer · \($0)" } ?? "Timer läuft"
+            return engine.selectedSubject.map { localized("status.timer_subject", $0.name) }
+                ?? localized("status.timer_running")
         }
-        return engine.selectedSubject?.name ?? "Stoppuhr läuft"
+        return engine.selectedSubject?.name ?? localized("status.stopwatch_running")
     }
 }

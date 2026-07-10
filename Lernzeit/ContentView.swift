@@ -1,13 +1,23 @@
 import SwiftUI
 
 enum AppSection: String, CaseIterable, Identifiable, Hashable {
-    case timer = "Timer"
-    case stats = "Statistik"
-    case history = "Verlauf"
-    case subjects = "Fächer"
-    case settings = "Einstellungen"
+    case timer
+    case stats
+    case history
+    case subjects
+    case settings
 
     var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .timer: localized("navigation.timer")
+        case .stats: localized("navigation.statistics")
+        case .history: localized("navigation.history")
+        case .subjects: localized("navigation.subjects")
+        case .settings: localized("navigation.settings")
+        }
+    }
 
     var icon: String {
         switch self {
@@ -26,7 +36,7 @@ struct ContentView: View {
     var body: some View {
         NavigationSplitView {
             List(AppSection.allCases, selection: $section) { item in
-                Label(item.rawValue, systemImage: item.icon)
+                Label(item.label, systemImage: item.icon)
                     .tag(item)
             }
             .navigationSplitViewColumnWidth(min: 180, ideal: 200, max: 240)
@@ -42,7 +52,7 @@ struct ContentView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background { AppBackground() }
-            .navigationTitle((section ?? .timer).rawValue)
+            .navigationTitle((section ?? .timer).label)
         }
     }
 }

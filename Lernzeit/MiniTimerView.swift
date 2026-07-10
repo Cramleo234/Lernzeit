@@ -55,7 +55,7 @@ struct MiniTimerView: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(.tertiary)
-            .help("Mini-Timer schließen")
+            .help(localized("mini.close"))
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 12)

@@ -1,4 +1,11 @@
+import Foundation
 import SwiftUI
+
+func localized(_ key: String, _ arguments: CVarArg...) -> String {
+    let format = NSLocalizedString(key, tableName: nil, bundle: .main, value: key, comment: "")
+    guard !arguments.isEmpty else { return format }
+    return String(format: format, locale: Locale.current, arguments: arguments)
+}
 
 extension UserDefaults {
     /// Gemeinsame Suite für App und Widget — eine normale Plist in
@@ -28,9 +35,9 @@ enum AppAppearance: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .system: "System"
-        case .light: "Hell"
-        case .dark: "Dunkel"
+        case .system: localized("appearance.system")
+        case .light: localized("appearance.light")
+        case .dark: localized("appearance.dark")
         }
     }
 
@@ -61,9 +68,9 @@ func formatDuration(_ interval: TimeInterval) -> String {
     let totalMinutes = Int(interval) / 60
     let hours = totalMinutes / 60
     let minutes = totalMinutes % 60
-    if hours > 0 { return "\(hours) h \(minutes) min" }
-    if totalMinutes > 0 { return "\(minutes) min" }
-    return "< 1 min"
+    if hours > 0 { return localized("duration.hours_minutes", hours, minutes) }
+    if totalMinutes > 0 { return localized("duration.minutes", totalMinutes) }
+    return localized("duration.less_than_minute")
 }
 
 func clockString(_ interval: TimeInterval, alwaysShowHours: Bool = false) -> String {
