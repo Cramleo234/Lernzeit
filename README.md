@@ -1,5 +1,7 @@
 # Lernzeit 🎓
 
+**Deutsch** | [English](README.en.md)
+
 Minimalistische Lern-Timer-App für macOS mit modernem, durchscheinendem Glas-Design.
 
 ## Features
