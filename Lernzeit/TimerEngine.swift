@@ -13,9 +13,9 @@ enum TimerMode: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var label: String {
         switch self {
-        case .stopwatch: "Stoppuhr"
-        case .countdown: "Timer"
-        case .pomodoro: "Pomodoro"
+        case .stopwatch: localized("timer.mode.stopwatch")
+        case .countdown: localized("timer.mode.countdown")
+        case .pomodoro: localized("timer.mode.pomodoro")
         }
     }
 }
@@ -24,7 +24,9 @@ enum PomodoroPhase {
     case focus
     case pause
 
-    var label: String { self == .focus ? "Fokus" : "Pause" }
+    var label: String {
+        localized(self == .focus ? "timer.phase.focus" : "timer.phase.break")
+    }
 }
 
 enum SettingsKeys {
@@ -312,8 +314,8 @@ final class TimerEngine {
         }
         playSound()
         notify(
-            title: "Timer fertig",
-            body: "Dein frei eingestellter Timer ist abgelaufen."
+            title: localized("notification.timer_complete_title"),
+            body: localized("notification.timer_complete_body")
         )
         reset()
     }
@@ -325,15 +327,15 @@ final class TimerEngine {
             phase = .pause
             playSound()
             notify(
-                title: "Fokus geschafft 🎉",
-                body: "Zeit für \(Int(breakDuration / 60)) Minuten Pause."
+                title: localized("notification.focus_complete_title"),
+                body: localized("notification.break_time_body", Int(breakDuration / 60))
             )
         } else {
             phase = .focus
             playSound()
             notify(
-                title: "Pause vorbei",
-                body: "Weiter geht's mit dem nächsten Fokus-Block."
+                title: localized("notification.break_over_title"),
+                body: localized("notification.break_over_body")
             )
         }
         phaseStart = .now
@@ -405,8 +407,8 @@ final class TimerEngine {
         guard before < goal, after >= goal else { return }
         playSound()
         notify(
-            title: "Tagesziel erreicht 🔥",
-            body: "Stark! Du hast heute \(formatDuration(after)) gelernt."
+            title: localized("notification.daily_goal_title"),
+            body: localized("notification.daily_goal_body", formatDuration(after))
         )
     }
 

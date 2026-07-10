@@ -14,53 +14,53 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
-            Section("Darstellung") {
-                Picker("Theme", selection: $appAppearance) {
+            Section(localized("appearance.section")) {
+                Picker(localized("appearance.theme"), selection: $appAppearance) {
                     ForEach(AppAppearance.allCases) { appearance in
                         Text(appearance.label).tag(appearance.rawValue)
                     }
                 }
                 .pickerStyle(.segmented)
 
-                Text("Wähle „Dunkel“, um Lernzeit unabhängig von der macOS-Einstellung dauerhaft im Dark Theme zu verwenden.")
+                Text(localized("appearance.description"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
-            Section("Ziel") {
+            Section(localized("settings.goal_section")) {
                 Stepper(
-                    "Tagesziel: \(dailyGoalMinutes) min",
+                    localized("settings.daily_goal", dailyGoalMinutes),
                     value: $dailyGoalMinutes,
                     in: 15...600,
                     step: 15
                 )
             }
 
-            Section("Pomodoro") {
-                Stepper("Fokus: \(focusMinutes) min", value: $focusMinutes, in: 5...90, step: 5)
-                Stepper("Pause: \(breakMinutes) min", value: $breakMinutes, in: 1...30, step: 1)
+            Section(localized("settings.pomodoro_section")) {
+                Stepper(localized("settings.focus_minutes", focusMinutes), value: $focusMinutes, in: 5...90, step: 5)
+                Stepper(localized("settings.break_minutes", breakMinutes), value: $breakMinutes, in: 1...30, step: 1)
             }
 
-            Section("Automatische Pause") {
-                Toggle("Bei Bildschirmsperre pausieren", isOn: $autoPauseOnLock)
-                Picker("Bei Inaktivität pausieren", selection: $autoPauseIdleMinutes) {
-                    Text("Aus").tag(0)
-                    Text("Nach 1 min").tag(1)
-                    Text("Nach 3 min").tag(3)
-                    Text("Nach 5 min").tag(5)
-                    Text("Nach 10 min").tag(10)
+            Section(localized("settings.auto_pause_section")) {
+                Toggle(localized("settings.pause_on_lock"), isOn: $autoPauseOnLock)
+                Picker(localized("settings.pause_on_idle"), selection: $autoPauseIdleMinutes) {
+                    Text(localized("common.off")).tag(0)
+                    Text(localized("settings.after_one_minute")).tag(1)
+                    ForEach([3, 5, 10], id: \.self) { minutes in
+                        Text(localized("settings.after_minutes", minutes)).tag(minutes)
+                    }
                 }
             }
 
-            Section("Anzeige & Töne") {
-                Toggle("Ton bei Phasenwechsel", isOn: $soundsEnabled)
-                Toggle("Restzeit am Dock-Icon", isOn: $dockBadgeEnabled)
-                Toggle("Fortschrittslinie um die Notch", isOn: $notchLineEnabled)
+            Section(localized("settings.display_sounds_section")) {
+                Toggle(localized("settings.sound_phase_change"), isOn: $soundsEnabled)
+                Toggle(localized("settings.dock_time_remaining"), isOn: $dockBadgeEnabled)
+                Toggle(localized("settings.notch_progress"), isOn: $notchLineEnabled)
                     .disabled(!hasNotch)
                 Label(
                     hasNotch
-                        ? "Notch erkannt — die Linie erscheint bei laufendem Timer um die Notch."
-                        : "Kein Display mit Notch erkannt. Der Fortschritt wird stattdessen als Ring im Menüleisten-Icon angezeigt.",
+                        ? localized("settings.notch_detected")
+                        : localized("settings.no_notch"),
                     systemImage: hasNotch ? "checkmark.circle" : "info.circle"
                 )
                 .font(.caption)

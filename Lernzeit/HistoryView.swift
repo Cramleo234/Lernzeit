@@ -17,9 +17,9 @@ struct HistoryView: View {
     var body: some View {
         if sessions.isEmpty {
             ContentUnavailableView(
-                "Noch keine Sessions",
+                localized("history.empty_title"),
                 systemImage: "clock",
-                description: Text("Starte deine erste Lernsession im Timer.")
+                description: Text(localized("history.empty_description"))
             )
         } else {
             List {
@@ -55,7 +55,7 @@ struct HistoryView: View {
                 .frame(width: 10, height: 10)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(session.subject?.name ?? "Ohne Fach")
+                Text(session.subject?.name ?? localized("common.no_subject"))
                 Text("\(session.startDate.formatted(date: .omitted, time: .shortened)) – \(session.endDate.formatted(date: .omitted, time: .shortened))")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -71,7 +71,7 @@ struct HistoryView: View {
             Spacer()
 
             if session.isPomodoro || session.isCountdown {
-                Text(session.isCountdown ? "Timer" : "Pomodoro")
+                Text(session.isCountdown ? localized("timer.mode.countdown") : localized("timer.mode.pomodoro"))
                     .font(.caption2)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
@@ -84,19 +84,19 @@ struct HistoryView: View {
         }
         .padding(.vertical, 4)
         .contextMenu {
-            Button("Bearbeiten", systemImage: "slider.horizontal.3") {
+            Button(localized("history.edit"), systemImage: "slider.horizontal.3") {
                 editSession = session
             }
-            Button("Notiz bearbeiten", systemImage: "square.and.pencil") {
+            Button(localized("history.edit_note"), systemImage: "square.and.pencil") {
                 noteSession = session
             }
-            Button("Löschen", systemImage: "trash", role: .destructive) {
+            Button(localized("common.delete"), systemImage: "trash", role: .destructive) {
                 context.delete(session)
                 try? context.save()
             }
         }
         .swipeActions {
-            Button("Löschen", systemImage: "trash", role: .destructive) {
+            Button(localized("common.delete"), systemImage: "trash", role: .destructive) {
                 context.delete(session)
                 try? context.save()
             }
@@ -105,8 +105,8 @@ struct HistoryView: View {
 
     private func dayLabel(_ day: Date) -> String {
         let calendar = Calendar.current
-        if calendar.isDateInToday(day) { return "Heute" }
-        if calendar.isDateInYesterday(day) { return "Gestern" }
+        if calendar.isDateInToday(day) { return localized("history.today") }
+        if calendar.isDateInYesterday(day) { return localized("history.yesterday") }
         return day.formatted(.dateTime.weekday(.wide).day().month(.wide))
     }
 }
@@ -122,15 +122,15 @@ struct SessionEditSheet: View {
 
     var body: some View {
         VStack(spacing: 18) {
-            Text("Session bearbeiten")
+            Text(localized("history.edit_session"))
                 .font(.headline)
 
             Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 14) {
                 GridRow {
-                    Text("Fach")
+                    Text(localized("history.subject"))
                         .foregroundStyle(.secondary)
                     Menu {
-                        Button("Ohne Fach") { session.subject = nil }
+                        Button(localized("common.no_subject")) { session.subject = nil }
                         if !subjects.isEmpty {
                             Divider()
                             ForEach(subjects) { subject in
@@ -142,29 +142,29 @@ struct SessionEditSheet: View {
                             Circle()
                                 .fill(session.subject?.color ?? Color.secondary.opacity(0.5))
                                 .frame(width: 8, height: 8)
-                            Text(session.subject?.name ?? "Ohne Fach")
+                            Text(session.subject?.name ?? localized("common.no_subject"))
                         }
                     }
                     .menuStyle(.button)
                     .fixedSize()
                 }
                 GridRow {
-                    Text("Beginn")
+                    Text(localized("history.start"))
                         .foregroundStyle(.secondary)
-                    DatePicker("Beginn", selection: $session.startDate)
+                    DatePicker(localized("history.start"), selection: $session.startDate)
                         .labelsHidden()
                 }
                 GridRow {
-                    Text("Dauer")
+                    Text(localized("history.duration"))
                         .foregroundStyle(.secondary)
-                    Stepper("\(durationMinutes) min", value: $durationMinutes, in: 1...600)
+                    Stepper(localized("duration.minutes", durationMinutes), value: $durationMinutes, in: 1...600)
                         .fixedSize()
                 }
             }
             .frame(width: 320)
 
             HStack(spacing: 12) {
-                Button("Session löschen", systemImage: "trash", role: .destructive) {
+                Button(localized("history.delete_session"), systemImage: "trash", role: .destructive) {
                     context.delete(session)
                     try? context.save()
                     dismiss()
@@ -172,9 +172,9 @@ struct SessionEditSheet: View {
 
                 Spacer()
 
-                Button("Abbrechen") { dismiss() }
+                Button(localized("common.cancel")) { dismiss() }
 
-                Button("Sichern") {
+                Button(localized("common.save")) {
                     session.duration = TimeInterval(durationMinutes * 60)
                     session.endDate = session.startDate.addingTimeInterval(session.duration)
                     try? context.save()

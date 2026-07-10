@@ -9,11 +9,19 @@ struct BucketTotal: Identifiable {
 }
 
 enum StatsRange: String, CaseIterable, Identifiable {
-    case twoWeeks = "14 Tage"
-    case twelveWeeks = "12 Wochen"
-    case twelveMonths = "12 Monate"
+    case twoWeeks
+    case twelveWeeks
+    case twelveMonths
 
     var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .twoWeeks: localized("stats.range_two_weeks")
+        case .twelveWeeks: localized("stats.range_twelve_weeks")
+        case .twelveMonths: localized("stats.range_twelve_months")
+        }
+    }
 }
 
 struct StatsView: View {
@@ -28,11 +36,11 @@ struct StatsView: View {
         ScrollView {
             VStack(spacing: 20) {
                 HStack(spacing: 16) {
-                    StatCard(title: "Heute", value: formatDuration(todayTotal), icon: "sun.max", tint: .orange)
-                    StatCard(title: "Diese Woche", value: formatDuration(weekTotal), icon: "calendar", tint: .blue)
+                    StatCard(title: localized("stats.today"), value: formatDuration(todayTotal), icon: "sun.max", tint: .orange)
+                    StatCard(title: localized("stats.this_week"), value: formatDuration(weekTotal), icon: "calendar", tint: .blue)
                     StatCard(
-                        title: "Streak",
-                        value: "\(currentStreak) \(currentStreak == 1 ? "Tag" : "Tage")",
+                        title: localized("stats.streak"),
+                        value: localized(currentStreak == 1 ? "stats.day_count_one" : "stats.day_count_many", currentStreak),
                         icon: "flame.fill",
                         tint: .red
                     )
@@ -106,7 +114,7 @@ struct StatsView: View {
         let recent = sessions.filter { $0.startDate >= weekAgo }
         var totals: [String: (color: Color, seconds: TimeInterval)] = [:]
         for session in recent {
-            let name = session.subject?.name ?? "Ohne Fach"
+            let name = session.subject?.name ?? localized("common.no_subject")
             let color = session.subject?.color ?? .gray
             totals[name, default: (color, 0)].seconds += session.duration
         }
@@ -128,17 +136,21 @@ struct StatsView: View {
     private var goalCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Label("Tagesziel", systemImage: "target")
+                Label(localized("stats.daily_goal"), systemImage: "target")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Stepper("\(dailyGoalMinutes) min", value: $dailyGoalMinutes, in: 15...600, step: 15)
+                Stepper(localized("duration.minutes", dailyGoalMinutes), value: $dailyGoalMinutes, in: 15...600, step: 15)
                     .font(.callout)
                     .fixedSize()
             }
             ProgressView(value: min(1, todayTotal / TimeInterval(dailyGoalMinutes * 60)))
                 .tint(todayTotal >= TimeInterval(dailyGoalMinutes * 60) ? .green : .accentColor)
-            Text("\(formatDuration(todayTotal)) von \(formatDuration(TimeInterval(dailyGoalMinutes * 60)))")
+            Text(localized(
+                "stats.goal_progress",
+                formatDuration(todayTotal),
+                formatDuration(TimeInterval(dailyGoalMinutes * 60))
+            ))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -149,13 +161,13 @@ struct StatsView: View {
     private var chartCard: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Label("Lernzeit", systemImage: "chart.bar")
+                Label(localized("stats.study_time"), systemImage: "chart.bar")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Picker("Zeitraum", selection: $range) {
+                Picker(localized("stats.range"), selection: $range) {
                     ForEach(StatsRange.allCases) { item in
-                        Text(item.rawValue).tag(item)
+                        Text(item.label).tag(item)
                     }
                 }
                 .pickerStyle(.segmented)
@@ -165,8 +177,8 @@ struct StatsView: View {
 
             Chart(chartData) { item in
                 BarMark(
-                    x: .value("Zeitraum", item.date, unit: chartUnit),
-                    y: .value("Minuten", item.minutes)
+                    x: .value(localized("stats.chart_period"), item.date, unit: chartUnit),
+                    y: .value(localized("common.minutes"), item.minutes)
                 )
                 .foregroundStyle(
                     LinearGradient(
@@ -178,7 +190,7 @@ struct StatsView: View {
                 .cornerRadius(4)
 
                 if range == .twoWeeks {
-                    RuleMark(y: .value("Ziel", Double(dailyGoalMinutes)))
+                    RuleMark(y: .value(localized("settings.goal_section"), Double(dailyGoalMinutes)))
                         .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
                         .foregroundStyle(.secondary)
                 }
@@ -213,7 +225,7 @@ struct StatsView: View {
 
     private var heatmapCard: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Label("Letzte 6 Monate", systemImage: "square.grid.4x3.fill")
+            Label(localized("stats.last_six_months"), systemImage: "square.grid.4x3.fill")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             HeatmapView(dayTotals: dayTotals, goalSeconds: Double(dailyGoalMinutes) * 60)
@@ -230,17 +242,20 @@ struct StatsView: View {
         let bestStreak = Statistics.longestStreak(sessions: sessions, goalMinutes: dailyGoalMinutes)
 
         return VStack(alignment: .leading, spacing: 14) {
-            Label("Rekorde", systemImage: "trophy")
+            Label(localized("stats.records"), systemImage: "trophy")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             Grid(alignment: .leading, horizontalSpacing: 24, verticalSpacing: 10) {
                 GridRow {
-                    recordItem("Längste Session", formatDuration(longestSession))
-                    recordItem("Bester Tag", formatDuration(bestDay))
+                    recordItem(localized("stats.longest_session"), formatDuration(longestSession))
+                    recordItem(localized("stats.best_day"), formatDuration(bestDay))
                 }
                 GridRow {
-                    recordItem("Längster Streak", "\(bestStreak) \(bestStreak == 1 ? "Tag" : "Tage")")
-                    recordItem("Insgesamt gelernt", formatDuration(allTime))
+                    recordItem(
+                        localized("stats.longest_streak"),
+                        localized(bestStreak == 1 ? "stats.day_count_one" : "stats.day_count_many", bestStreak)
+                    )
+                    recordItem(localized("stats.total_studied"), formatDuration(allTime))
                 }
             }
         }
@@ -263,13 +278,13 @@ struct StatsView: View {
 
     private var bestHoursCard: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Label("Wann du lernst", systemImage: "clock")
+            Label(localized("stats.when_you_study"), systemImage: "clock")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             Chart(hourTotals, id: \.hour) { item in
                 BarMark(
-                    x: .value("Stunde", item.hour),
-                    y: .value("Minuten", item.minutes)
+                    x: .value(localized("stats.chart_hour"), item.hour),
+                    y: .value(localized("common.minutes"), item.minutes)
                 )
                 .foregroundStyle(Color.accentColor.opacity(0.75))
                 .cornerRadius(3)
@@ -279,7 +294,7 @@ struct StatsView: View {
                     AxisGridLine()
                     AxisValueLabel {
                         if let hour = value.as(Int.self) {
-                            Text("\(hour) Uhr")
+                            Text(localized("stats.hour_label", hour))
                         }
                     }
                 }
@@ -292,7 +307,7 @@ struct StatsView: View {
 
     private var subjectCard: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Label("Fächer diese Woche", systemImage: "books.vertical")
+            Label(localized("stats.subjects_this_week"), systemImage: "books.vertical")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -352,7 +367,15 @@ struct HeatmapView: View {
             .fill(color(seconds: seconds))
             .frame(width: 11, height: 11)
             .opacity(isFuture ? 0 : 1)
-            .help(isFuture ? "" : "\(day.formatted(date: .abbreviated, time: .omitted)): \(formatDuration(seconds))")
+            .help(
+                isFuture
+                    ? ""
+                    : localized(
+                        "stats.heatmap_help",
+                        day.formatted(date: .abbreviated, time: .omitted),
+                        formatDuration(seconds)
+                    )
+            )
     }
 
     private func color(seconds: TimeInterval) -> Color {

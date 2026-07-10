@@ -18,7 +18,7 @@ struct TimerView: View {
 
             timerHeader
 
-            Picker("Modus", selection: $engine.mode) {
+            Picker(localized("timer.mode_label"), selection: $engine.mode) {
                 ForEach(TimerMode.allCases) { mode in
                     Text(mode.label).tag(mode)
                 }
@@ -36,7 +36,7 @@ struct TimerView: View {
 
             if engine.isAutoPaused {
                 Label(
-                    "Automatisch pausiert — geht bei Aktivität von selbst weiter",
+                    localized("timer.auto_paused_detail"),
                     systemImage: "moon.zzz"
                 )
                 .font(.callout)
@@ -60,11 +60,11 @@ struct TimerView: View {
             HStack(spacing: 10) {
                 Image(systemName: "timer")
                     .symbolRenderingMode(.hierarchical)
-                Text("Lern-Timer")
+                Text(localized("timer.title"))
             }
             .font(.system(size: 34, weight: .semibold, design: .rounded))
 
-            Text("Stoppuhr, eigenen Timer oder Pomodoro starten.")
+            Text(localized("timer.subtitle"))
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }
@@ -74,7 +74,7 @@ struct TimerView: View {
 
     private var subjectPicker: some View {
         Menu {
-            Button("Ohne Fach") { engine.selectedSubject = nil }
+            Button(localized("common.no_subject")) { engine.selectedSubject = nil }
             if !subjects.isEmpty {
                 Divider()
                 ForEach(subjects) { subject in
@@ -86,7 +86,7 @@ struct TimerView: View {
                 Circle()
                     .fill(engine.selectedSubject?.color ?? Color.secondary.opacity(0.5))
                     .frame(width: 9, height: 9)
-                Text(engine.selectedSubject?.name ?? "Ohne Fach")
+                Text(engine.selectedSubject?.name ?? localized("common.no_subject"))
             }
             .padding(.horizontal, 4)
         }
@@ -134,16 +134,16 @@ struct TimerView: View {
     }
 
     private var timerStatusText: String {
-        if engine.isAutoPaused { return "Automatisch pausiert" }
-        if engine.isPaused { return "Pausiert" }
+        if engine.isAutoPaused { return localized("status.auto_paused") }
+        if engine.isPaused { return localized("status.paused") }
 
         switch engine.mode {
         case .stopwatch:
-            return engine.isRunning ? "Stoppuhr läuft" : "Stoppuhr bereit"
+            return localized(engine.isRunning ? "status.stopwatch_running" : "status.stopwatch_ready")
         case .countdown:
-            return engine.isRunning ? "Timer läuft" : "Timer bereit"
+            return localized(engine.isRunning ? "status.timer_running" : "status.timer_ready")
         case .pomodoro:
-            return engine.isRunning ? engine.phase.label : "Pomodoro bereit"
+            return engine.isRunning ? engine.phase.label : localized("status.pomodoro_ready")
         }
     }
 
@@ -154,7 +154,7 @@ struct TimerView: View {
                     Button {
                         withAnimation(.spring(duration: 0.4)) { engine.start() }
                     } label: {
-                        Label("Timer starten", systemImage: "play.fill")
+                        Label(localized("timer.start"), systemImage: "play.fill")
                             .frame(minWidth: 150)
                             .padding(.vertical, 4)
                     }
@@ -169,7 +169,7 @@ struct TimerView: View {
                         }
                     } label: {
                         Label(
-                            engine.isPaused ? "Weiter" : "Pause",
+                            localized(engine.isPaused ? "common.resume" : "common.pause"),
                             systemImage: engine.isPaused ? "play.fill" : "pause.fill"
                         )
                         .frame(minWidth: 100)
@@ -184,7 +184,7 @@ struct TimerView: View {
                             finishedSession = engine.stop()
                         }
                     } label: {
-                        Label("Beenden", systemImage: "stop.fill")
+                        Label(localized("common.stop"), systemImage: "stop.fill")
                             .frame(minWidth: 100)
                             .padding(.vertical, 4)
                     }
@@ -211,8 +211,8 @@ struct TimerView: View {
 
     private var pomodoroSettings: some View {
         HStack(spacing: 24) {
-            Stepper("Fokus: \(focusMinutes) min", value: $focusMinutes, in: 5...90, step: 5)
-            Stepper("Pause: \(breakMinutes) min", value: $breakMinutes, in: 1...30, step: 1)
+            Stepper(localized("settings.focus_minutes", focusMinutes), value: $focusMinutes, in: 5...90, step: 5)
+            Stepper(localized("settings.break_minutes", breakMinutes), value: $breakMinutes, in: 1...30, step: 1)
         }
         .font(.callout)
         .padding(.horizontal, 20)
@@ -226,14 +226,14 @@ struct TimerView: View {
                 Stepper("", value: $customTimerMinutes, in: 1...600, step: 1)
                     .labelsHidden()
 
-                TextField("Minuten", value: $customTimerMinutes, format: .number)
+                TextField(localized("common.minutes"), value: $customTimerMinutes, format: .number)
                     .textFieldStyle(.roundedBorder)
                     .monospacedDigit()
                     .frame(width: 70)
                     .onSubmit { clampCustomTimerMinutes() }
                     .onChange(of: customTimerMinutes) { _, _ in clampCustomTimerMinutes() }
 
-                Text("Minuten")
+                Text(localized("common.minutes"))
                     .foregroundStyle(.secondary)
             }
 
@@ -244,7 +244,7 @@ struct TimerView: View {
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.small)
-                    .accessibilityLabel("\(minutes) Minuten")
+                    .accessibilityLabel(localized("timer.minutes_accessibility", minutes))
                 }
             }
         }
@@ -266,18 +266,22 @@ struct SessionNoteSheet: View {
 
     var body: some View {
         VStack(spacing: 18) {
-            Text("Session gespeichert")
+            Text(localized("timer.session_saved"))
                 .font(.headline)
-            Text("\(formatDuration(session.duration)) · \(session.subject?.name ?? "Ohne Fach")")
+            Text(localized(
+                "timer.session_summary",
+                formatDuration(session.duration),
+                session.subject?.name ?? localized("common.no_subject")
+            ))
                 .font(.callout)
                 .foregroundStyle(.secondary)
 
-            TextField("Was hast du gelernt? (optional)", text: $session.note, axis: .vertical)
+            TextField(localized("timer.note_placeholder"), text: $session.note, axis: .vertical)
                 .lineLimit(3...6)
                 .textFieldStyle(.roundedBorder)
                 .frame(width: 340)
 
-            Button("Fertig") {
+            Button(localized("common.done")) {
                 try? context.save()
                 dismiss()
             }

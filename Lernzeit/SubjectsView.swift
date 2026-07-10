@@ -18,9 +18,9 @@ struct SubjectsView: View {
 
             if subjects.isEmpty {
                 ContentUnavailableView(
-                    "Noch keine Fächer",
+                    localized("subjects.empty_title"),
                     systemImage: "books.vertical",
-                    description: Text("Lege oben dein erstes Fach an, z. B. Mathe oder Englisch.")
+                    description: Text(localized("subjects.empty_description"))
                 )
                 .frame(maxHeight: .infinity)
             } else {
@@ -35,13 +35,16 @@ struct SubjectsView: View {
                             Text(formatDuration(subject.sessions.reduce(0) { $0 + $1.duration }))
                                 .monospacedDigit()
                                 .foregroundStyle(.secondary)
-                            Text("\(subject.sessions.count) Sessions")
+                            Text(localized(
+                                subject.sessions.count == 1 ? "subjects.session_count_one" : "subjects.session_count_many",
+                                subject.sessions.count
+                            ))
                                 .font(.caption)
                                 .foregroundStyle(.tertiary)
                         }
                         .padding(.vertical, 4)
                         .contextMenu {
-                            Button("Löschen", systemImage: "trash", role: .destructive) {
+                            Button(localized("common.delete"), systemImage: "trash", role: .destructive) {
                                 context.delete(subject)
                                 try? context.save()
                             }
@@ -56,7 +59,7 @@ struct SubjectsView: View {
 
     private var addBar: some View {
         HStack(spacing: 12) {
-            TextField("Neues Fach …", text: $newName)
+            TextField(localized("subjects.new_placeholder"), text: $newName)
                 .textFieldStyle(.plain)
                 .frame(minWidth: 160)
                 .onSubmit(addSubject)
@@ -75,7 +78,7 @@ struct SubjectsView: View {
                 }
             }
 
-            Button("Hinzufügen", systemImage: "plus", action: addSubject)
+            Button(localized("subjects.add"), systemImage: "plus", action: addSubject)
                 .buttonStyle(.glassProminent)
                 .disabled(newName.trimmingCharacters(in: .whitespaces).isEmpty)
         }
