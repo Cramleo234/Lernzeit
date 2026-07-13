@@ -63,6 +63,7 @@ final class TimerEngine {
     private var todayBaseSeconds: TimeInterval = 0
     private var modelContext: ModelContext?
     private let notchOverlay = NotchOverlayController()
+    private let soundPlayer = TimerSoundPlayer()
 
     init() {
         UserDefaults.standard.register(defaults: [
@@ -308,7 +309,7 @@ final class TimerEngine {
         if saved != nil {
             celebrateIfGoalReached(sessionSeconds: duration)
         }
-        playSound()
+        playSound(for: .countdownFinished)
         notify(
             title: localized("notification.timer_complete_title"),
             body: localized("notification.timer_complete_body")
@@ -321,14 +322,14 @@ final class TimerEngine {
             focusAccumulated += focusDuration
             completedPomodoros += 1
             phase = .pause
-            playSound()
+            playSound(for: .focusFinished)
             notify(
                 title: localized("notification.focus_complete_title"),
                 body: localized("notification.break_time_body", Int(breakDuration / 60))
             )
         } else {
             phase = .focus
-            playSound()
+            playSound(for: .breakFinished)
             notify(
                 title: localized("notification.break_over_title"),
                 body: localized("notification.break_over_body")
@@ -396,16 +397,15 @@ final class TimerEngine {
         let before = todayBaseSeconds
         let after = before + sessionSeconds
         guard before < goal, after >= goal else { return }
-        playSound()
+        playSound(for: .goalReached)
         notify(
             title: localized("notification.daily_goal_title"),
             body: localized("notification.daily_goal_body", formatDuration(after))
         )
     }
 
-    private func playSound() {
-        guard UserDefaults.standard.bool(forKey: SettingsKeys.soundsEnabled) else { return }
-        NSSound(named: "Glass")?.play()
+    private func playSound(for event: TimerSoundEvent) {
+        soundPlayer.play(event.cue)
     }
 
     private func requestNotificationPermission() {
@@ -416,7 +416,6 @@ final class TimerEngine {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
-        content.sound = .default
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
         UNUserNotificationCenter.current().add(request)
     }
