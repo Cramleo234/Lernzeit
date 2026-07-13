@@ -63,7 +63,7 @@
 "settings.pause_on_idle" = "Bei Inaktivität pausieren";
 "settings.pause_on_lock" = "Bei Bildschirmsperre pausieren";
 "settings.pomodoro_section" = "Pomodoro";
-"settings.sound_phase_change" = "Ton bei Phasenwechsel";
+"settings.sound_phase_change" = "Töne bei Timer- und Phasenende";
 "stats.best_day" = "Bester Tag";
 "stats.chart_hour" = "Stunde";
 "stats.chart_period" = "Zeitraum";
