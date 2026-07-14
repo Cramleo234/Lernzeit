@@ -48,6 +48,7 @@ enum SettingsKeys {
     static let customTimerMinutes = "customTimerMinutes"
     static let dailyGoalMinutes = "dailyGoalMinutes"
     static let appAppearance = "appAppearance"
+    static let appTheme = "appTheme"
     static let soundsEnabled = "soundsEnabled"
     static let notchLineEnabled = "notchLineEnabled"
     static let autoPauseOnLock = "autoPauseOnLock"

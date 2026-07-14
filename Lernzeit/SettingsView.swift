@@ -2,6 +2,7 @@ import AppKit
 import SwiftUI
 
 struct SettingsView: View {
+    @Environment(AppearanceStore.self) private var appearanceStore
     @AppStorage(SettingsKeys.dailyGoalMinutes, store: .lernzeitShared) private var dailyGoalMinutes = 120
     @AppStorage(SettingsKeys.focusMinutes) private var focusMinutes = 25
     @AppStorage(SettingsKeys.breakMinutes) private var breakMinutes = 5
@@ -12,18 +13,28 @@ struct SettingsView: View {
     @AppStorage(SettingsKeys.notchLineEnabled) private var notchLineEnabled = true
     @AppStorage(SettingsKeys.autoPauseOnLock) private var autoPauseOnLock = true
     @AppStorage(SettingsKeys.autoPauseIdleMinutes) private var autoPauseIdleMinutes = 3
-    @AppStorage(SettingsKeys.appAppearance) private var appAppearance = AppAppearance.system.rawValue
 
     var body: some View {
+        @Bindable var appearanceStore = appearanceStore
+
         Form {
             Section(localized("appearance.section")) {
-                Picker(localized("appearance.theme"), selection: $appAppearance) {
+                Picker(localized("appearance.mode"), selection: $appearanceStore.appearance) {
                     ForEach(AppAppearance.allCases) { appearance in
-                        Text(appearance.label).tag(appearance.rawValue)
+                        Text(appearance.label).tag(appearance)
                     }
                 }
                 .pickerStyle(.segmented)
-                Text(localized("appearance.description")).font(.caption).foregroundStyle(.secondary)
+
+                Picker(localized("theme.color_world"), selection: $appearanceStore.theme) {
+                    ForEach(AppTheme.allCases) { theme in
+                        Text(theme.label).tag(theme)
+                    }
+                }
+
+                Text(localized("appearance.description"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             Section(localized("settings.goal_section")) {

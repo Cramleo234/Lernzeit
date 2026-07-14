@@ -4,6 +4,7 @@ import SwiftUI
 @main
 struct LernzeitApp: App {
     @State private var engine: TimerEngine
+    @State private var appearanceStore: AppearanceStore
     private let container: ModelContainer
 
     init() {
@@ -12,13 +13,15 @@ struct LernzeitApp: App {
         let engine = TimerEngine()
         engine.configure(context: container.mainContext)
         _engine = State(initialValue: engine)
+        _appearanceStore = State(initialValue: AppearanceStore())
     }
 
     var body: some Scene {
         WindowGroup(id: "main") {
             ContentView()
                 .environment(engine)
-                .lernzeitAppearance()
+                .lernzeitAppearance(appearanceStore)
+                .environment(appearanceStore)
         }
         .modelContainer(container)
         .defaultSize(width: 980, height: 660)
@@ -26,7 +29,8 @@ struct LernzeitApp: App {
         WindowGroup(id: "mini") {
             MiniTimerView()
                 .environment(engine)
-                .lernzeitAppearance()
+                .lernzeitAppearance(appearanceStore)
+                .environment(appearanceStore)
         }
         .modelContainer(container)
         .windowStyle(.hiddenTitleBar)
@@ -36,14 +40,16 @@ struct LernzeitApp: App {
         Settings {
             SettingsView()
                 .modelContainer(container)
-                .lernzeitAppearance()
+                .lernzeitAppearance(appearanceStore)
+                .environment(appearanceStore)
         }
 
         MenuBarExtra {
             MenuBarView()
                 .environment(engine)
                 .modelContainer(container)
-                .lernzeitAppearance()
+                .lernzeitAppearance(appearanceStore)
+                .environment(appearanceStore)
         } label: {
             if engine.isRunning {
                 HStack(spacing: 5) {

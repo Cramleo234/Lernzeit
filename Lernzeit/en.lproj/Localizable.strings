@@ -1,9 +1,14 @@
 "appearance.dark" = "Dark";
-"appearance.description" = "Choose “Dark” to keep Lernzeit in dark mode regardless of the macOS appearance setting.";
+"appearance.description" = "“System” automatically follows changes to the macOS appearance. The color theme remains independent.";
 "appearance.light" = "Light";
+"appearance.mode" = "Mode";
 "appearance.section" = "Appearance";
 "appearance.system" = "System";
-"appearance.theme" = "Theme";
+"theme.color_world" = "Color Theme";
+"theme.forest" = "Forest";
+"theme.ocean" = "Ocean";
+"theme.standard" = "Standard";
+"theme.sunset" = "Sunset";
 "common.cancel" = "Cancel";
 "common.delete" = "Delete";
 "common.done" = "Done";
