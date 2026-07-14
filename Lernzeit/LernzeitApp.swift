@@ -35,6 +35,7 @@ struct LernzeitApp: App {
 
         Settings {
             SettingsView()
+                .modelContainer(container)
                 .lernzeitAppearance()
         }
 

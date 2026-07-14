@@ -20,18 +20,31 @@ enum TimerMode: String, CaseIterable, Identifiable {
     }
 }
 
-enum PomodoroPhase {
+enum PomodoroPhase: String, Codable, Equatable {
     case focus
-    case pause
+    case shortBreak
+    case longBreak
+
+    var isBreak: Bool { self != .focus }
 
     var label: String {
-        localized(self == .focus ? "timer.phase.focus" : "timer.phase.break")
+        switch self {
+        case .focus:
+            localized("timer.phase.focus")
+        case .shortBreak:
+            localized("timer.phase.break")
+        case .longBreak:
+            localized("timer.phase.long_break")
+        }
     }
 }
 
 enum SettingsKeys {
     static let focusMinutes = "focusMinutes"
     static let breakMinutes = "breakMinutes"
+    static let longBreakMinutes = "longBreakMinutes"
+    static let roundsPerCycle = "roundsPerCycle"
+    static let autoStartNextPhase = "autoStartNextPhase"
     static let customTimerMinutes = "customTimerMinutes"
     static let dailyGoalMinutes = "dailyGoalMinutes"
     static let appAppearance = "appAppearance"
@@ -45,12 +58,19 @@ enum SettingsKeys {
 @Observable
 final class TimerEngine {
     var mode: TimerMode = .stopwatch
-    var phase: PomodoroPhase = .focus
     var isRunning = false
     var isPaused = false
     var isAutoPaused = false
-    var completedPomodoros = 0
     var selectedSubject: Subject?
+    private(set) var activePresetName = ""
+
+    private var pomodoroCycle = PomodoroCycle()
+    private var presetPlan: PomodoroPlan?
+    private var presetCountdownMinutes: Int?
+    private var phaseExtraDuration: TimeInterval = 0
+
+    var phase: PomodoroPhase { pomodoroCycle.phase }
+    var completedPomodoros: Int { pomodoroCycle.completedFocusRounds }
 
     private(set) var now: Date = .now
 
@@ -71,6 +91,9 @@ final class TimerEngine {
             SettingsKeys.notchLineEnabled: true,
             SettingsKeys.autoPauseOnLock: true,
             SettingsKeys.autoPauseIdleMinutes: 3,
+            SettingsKeys.longBreakMinutes: 20,
+            SettingsKeys.roundsPerCycle: 4,
+            SettingsKeys.autoStartNextPhase: true,
         ])
         observeLockState()
     }
@@ -85,17 +108,27 @@ final class TimerEngine {
 
     // MARK: - Abgeleitete Werte
 
-    var focusDuration: TimeInterval {
-        let minutes = UserDefaults.standard.integer(forKey: SettingsKeys.focusMinutes)
-        return TimeInterval(minutes > 0 ? minutes : 25) * 60
+    var pomodoroPlan: PomodoroPlan {
+        if let presetPlan { return presetPlan }
+        let focus = UserDefaults.standard.integer(forKey: SettingsKeys.focusMinutes)
+        let shortBreak = UserDefaults.standard.integer(forKey: SettingsKeys.breakMinutes)
+        let longBreak = UserDefaults.standard.integer(forKey: SettingsKeys.longBreakMinutes)
+        let rounds = UserDefaults.standard.integer(forKey: SettingsKeys.roundsPerCycle)
+        return PomodoroPlan(
+            focusMinutes: focus > 0 ? focus : 25,
+            shortBreakMinutes: shortBreak > 0 ? shortBreak : 5,
+            longBreakMinutes: longBreak > 0 ? longBreak : 20,
+            roundsPerCycle: rounds > 0 ? rounds : 4,
+            autoStartNextPhase: UserDefaults.standard.bool(forKey: SettingsKeys.autoStartNextPhase)
+        )
     }
 
-    var breakDuration: TimeInterval {
-        let minutes = UserDefaults.standard.integer(forKey: SettingsKeys.breakMinutes)
-        return TimeInterval(minutes > 0 ? minutes : 5) * 60
-    }
+    var focusDuration: TimeInterval { TimeInterval(pomodoroPlan.focusMinutes * 60) }
+    var breakDuration: TimeInterval { TimeInterval(pomodoroPlan.shortBreakMinutes * 60) }
+    var longBreakDuration: TimeInterval { TimeInterval(pomodoroPlan.longBreakMinutes * 60) }
 
     var customTimerDuration: TimeInterval {
+        if let presetCountdownMinutes { return TimeInterval(presetCountdownMinutes * 60) }
         let minutes = UserDefaults.standard.integer(forKey: SettingsKeys.customTimerMinutes)
         return TimeInterval(minutes > 0 ? minutes : 25) * 60
     }
@@ -107,7 +140,14 @@ final class TimerEngine {
 
     var currentPhaseDuration: TimeInterval {
         if mode == .countdown { return customTimerDuration }
-        return phase == .focus ? focusDuration : breakDuration
+        let base = pomodoroCycle.duration(using: pomodoroPlan)
+        return base + (phase.isBreak ? phaseExtraDuration : 0)
+    }
+
+    var roundInCycle: Int {
+        let rounds = max(1, pomodoroPlan.roundsPerCycle)
+        if phase == .focus { return (completedPomodoros % rounds) + 1 }
+        return ((max(1, completedPomodoros) - 1) % rounds) + 1
     }
 
     var phaseElapsed: TimeInterval {
@@ -156,11 +196,31 @@ final class TimerEngine {
     }
 
     var ambientColor: Color {
-        if mode == .pomodoro && phase == .pause { return .green }
+        if mode == .pomodoro && phase.isBreak { return .green }
         return selectedSubject?.color ?? .accentColor
     }
 
     // MARK: - Steuerung
+
+    func apply(_ preset: TimerPreset) {
+        guard !isRunning else { return }
+        mode = preset.mode
+        selectedSubject = preset.subject
+        activePresetName = preset.name
+        presetPlan = preset.mode == .pomodoro ? preset.pomodoroPlan : nil
+        presetCountdownMinutes = preset.mode == .countdown ? preset.countdownMinutes : nil
+        pomodoroCycle.reset()
+        phaseExtraDuration = 0
+    }
+
+    func clearPresetConfiguration() {
+        guard !isRunning else { return }
+        activePresetName = ""
+        presetPlan = nil
+        presetCountdownMinutes = nil
+        pomodoroCycle.reset()
+        phaseExtraDuration = 0
+    }
 
     func start() {
         guard !isRunning else { return }
@@ -168,8 +228,8 @@ final class TimerEngine {
         phaseStart = .now
         phaseAccumulated = 0
         focusAccumulated = 0
-        completedPomodoros = 0
-        phase = .focus
+        pomodoroCycle.reset()
+        phaseExtraDuration = 0
         isRunning = true
         isPaused = false
         isAutoPaused = false
@@ -230,7 +290,9 @@ final class TimerEngine {
             endDate: .now,
             duration: duration,
             modeRaw: mode.rawValue,
-            subject: selectedSubject
+            subject: selectedSubject,
+            presetName: activePresetName,
+            completedFocusRounds: completedPomodoros
         )
         modelContext.insert(session)
         do {
@@ -247,10 +309,10 @@ final class TimerEngine {
         isPaused = false
         isAutoPaused = false
         pausedByLock = false
-        phase = .focus
+        pomodoroCycle.reset()
+        phaseExtraDuration = 0
         phaseAccumulated = 0
         focusAccumulated = 0
-        completedPomodoros = 0
         sessionStart = nil
         stopTimer()
         syncAmbient()
@@ -286,7 +348,9 @@ final class TimerEngine {
         }
 
         let idleLimitMinutes = UserDefaults.standard.integer(forKey: SettingsKeys.autoPauseIdleMinutes)
-        if idleLimitMinutes > 0 && currentIdleSeconds() >= Double(idleLimitMinutes * 60) {
+        let idleLimit = Double(idleLimitMinutes * 60)
+        let checksIdle = mode != .pomodoro || phase == .focus
+        if checksIdle, idleLimitMinutes > 0, phaseElapsed >= idleLimit, currentIdleSeconds() >= idleLimit {
             pause(auto: true)
             return
         }
@@ -318,25 +382,46 @@ final class TimerEngine {
     }
 
     private func advancePhase() {
-        if phase == .focus {
+        let completedPhase = phase
+        if completedPhase == .focus {
             focusAccumulated += focusDuration
-            completedPomodoros += 1
-            phase = .pause
+        }
+        let nextPhase = pomodoroCycle.completeCurrentPhase(using: pomodoroPlan)
+        phaseExtraDuration = 0
+        phaseStart = .now
+        phaseAccumulated = 0
+
+        if completedPhase == .focus {
             playSound(for: .focusFinished)
+            let minutes = Int(pomodoroCycle.duration(using: pomodoroPlan) / 60)
             notify(
                 title: localized("notification.focus_complete_title"),
-                body: localized("notification.break_time_body", Int(breakDuration / 60))
+                body: localized("notification.break_time_body", minutes)
             )
         } else {
-            phase = .focus
             playSound(for: .breakFinished)
             notify(
                 title: localized("notification.break_over_title"),
                 body: localized("notification.break_over_body")
             )
         }
-        phaseStart = .now
-        phaseAccumulated = 0
+
+        if !pomodoroPlan.autoStartNextPhase {
+            isPaused = true
+            isAutoPaused = false
+        } else if nextPhase == .focus {
+            isPaused = false
+        }
+    }
+
+    func skipBreak() {
+        guard isRunning, mode == .pomodoro, phase.isBreak else { return }
+        advancePhase()
+    }
+
+    func extendBreak(byMinutes minutes: Int = 5) {
+        guard isRunning, mode == .pomodoro, phase.isBreak else { return }
+        phaseExtraDuration += TimeInterval(max(1, minutes) * 60)
     }
 
     // MARK: - Automatische Pause

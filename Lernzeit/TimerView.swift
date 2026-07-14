@@ -4,8 +4,12 @@ import SwiftUI
 struct TimerView: View {
     @Environment(TimerEngine.self) private var engine
     @Query(sort: \Subject.createdAt) private var subjects: [Subject]
+    @Query(sort: \TimerPreset.createdAt) private var presets: [TimerPreset]
     @AppStorage(SettingsKeys.focusMinutes) private var focusMinutes = 25
     @AppStorage(SettingsKeys.breakMinutes) private var breakMinutes = 5
+    @AppStorage(SettingsKeys.longBreakMinutes) private var longBreakMinutes = 20
+    @AppStorage(SettingsKeys.roundsPerCycle) private var roundsPerCycle = 4
+    @AppStorage(SettingsKeys.autoStartNextPhase) private var autoStartNextPhase = true
     @AppStorage(SettingsKeys.customTimerMinutes) private var customTimerMinutes = 25
     @State private var finishedSession: StudySession?
     @Namespace private var glassNamespace
@@ -18,7 +22,7 @@ struct TimerView: View {
 
             timerHeader
 
-            Picker(localized("timer.mode_label"), selection: $engine.mode) {
+            Picker(localized("timer.mode_label"), selection: modeBinding) {
                 ForEach(TimerMode.allCases) { mode in
                     Text(mode.label).tag(mode)
                 }
@@ -27,6 +31,10 @@ struct TimerView: View {
             .labelsHidden()
             .frame(width: 320)
             .disabled(engine.isRunning)
+
+            if !engine.isRunning, !presets.isEmpty {
+                presetPicker
+            }
 
             subjectPicker
 
@@ -43,7 +51,7 @@ struct TimerView: View {
                 .foregroundStyle(.secondary)
             }
 
-            if !engine.isRunning {
+            if !engine.isRunning, engine.activePresetName.isEmpty {
                 timerSettings
             }
 
@@ -70,6 +78,34 @@ struct TimerView: View {
         }
         .multilineTextAlignment(.center)
         .accessibilityElement(children: .combine)
+    }
+
+    private var modeBinding: Binding<TimerMode> {
+        Binding(
+            get: { engine.mode },
+            set: { mode in
+                engine.clearPresetConfiguration()
+                engine.mode = mode
+            }
+        )
+    }
+
+    private var presetPicker: some View {
+        Menu {
+            Button(localized("presets.custom_settings")) { engine.clearPresetConfiguration() }
+            Divider()
+            ForEach(presets) { preset in
+                Button(preset.name) { engine.apply(preset) }
+            }
+        } label: {
+            Label(
+                engine.activePresetName.isEmpty ? localized("presets.choose") : engine.activePresetName,
+                systemImage: "square.stack.3d.up"
+            )
+        }
+        .menuStyle(.button)
+        .buttonStyle(.glass)
+        .fixedSize()
     }
 
     private var subjectPicker: some View {
@@ -123,10 +159,15 @@ struct TimerView: View {
                     .font(.callout)
                     .foregroundStyle(.secondary)
 
-                if engine.mode == .pomodoro && engine.completedPomodoros > 0 {
-                    Text("🍅 × \(engine.completedPomodoros)")
-                        .font(.caption)
+                if engine.mode == .pomodoro {
+                    Text(localized("timer.round_status", engine.roundInCycle, engine.pomodoroPlan.roundsPerCycle))
+                        .font(.caption.weight(.medium))
                         .foregroundStyle(.secondary)
+                    if engine.completedPomodoros > 0 {
+                        Text(localized("timer.completed_rounds", engine.completedPomodoros))
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                    }
                 }
             }
         }
@@ -162,6 +203,7 @@ struct TimerView: View {
                     .tint(engine.selectedSubject?.color ?? .accentColor)
                     .controlSize(.extraLarge)
                     .glassEffectID("primary", in: glassNamespace)
+                    .keyboardShortcut(.space, modifiers: [])
                 } else {
                     Button {
                         withAnimation(.spring(duration: 0.4)) {
@@ -194,6 +236,19 @@ struct TimerView: View {
                     .glassEffectID("primary", in: glassNamespace)
                 }
             }
+            if engine.isRunning, engine.mode == .pomodoro, engine.phase.isBreak {
+                HStack(spacing: 12) {
+                    Button(localized("timer.extend_break"), systemImage: "plus.circle") {
+                        engine.extendBreak()
+                    }
+                    .buttonStyle(.glass)
+                    Button(localized("timer.skip_break"), systemImage: "forward.end.fill") {
+                        engine.skipBreak()
+                    }
+                    .buttonStyle(.glass)
+                }
+                .controlSize(.small)
+            }
         }
     }
 
@@ -210,9 +265,19 @@ struct TimerView: View {
     }
 
     private var pomodoroSettings: some View {
-        HStack(spacing: 24) {
-            Stepper(localized("settings.focus_minutes", focusMinutes), value: $focusMinutes, in: 5...90, step: 5)
-            Stepper(localized("settings.break_minutes", breakMinutes), value: $breakMinutes, in: 1...30, step: 1)
+        Grid(alignment: .leading, horizontalSpacing: 22, verticalSpacing: 10) {
+            GridRow {
+                Stepper(localized("settings.focus_minutes", focusMinutes), value: $focusMinutes, in: 5...120, step: 5)
+                Stepper(localized("settings.break_minutes", breakMinutes), value: $breakMinutes, in: 1...30)
+            }
+            GridRow {
+                Stepper(localized("presets.long_break_minutes", longBreakMinutes), value: $longBreakMinutes, in: 5...60, step: 5)
+                Stepper(localized("presets.rounds", roundsPerCycle), value: $roundsPerCycle, in: 1...12)
+            }
+            GridRow {
+                Toggle(localized("presets.auto_start"), isOn: $autoStartNextPhase)
+                    .gridCellColumns(2)
+            }
         }
         .font(.callout)
         .padding(.horizontal, 20)

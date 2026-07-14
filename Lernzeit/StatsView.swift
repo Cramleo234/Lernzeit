@@ -47,6 +47,7 @@ struct StatsView: View {
                 }
 
                 goalCard
+                weekComparisonCard
                 chartCard
                 heatmapCard
                 recordsCard
@@ -54,6 +55,9 @@ struct StatsView: View {
 
                 if !subjectTotals.isEmpty {
                     subjectCard
+                }
+                if !profileTotals.isEmpty {
+                    profileCard
                 }
             }
             .padding(24)
@@ -70,9 +74,12 @@ struct StatsView: View {
     private var todayTotal: TimeInterval { total(onDayOf: .now) }
 
     private var weekTotal: TimeInterval {
-        (0..<7).reduce(0) { sum, offset in
-            sum + total(onDayOf: calendar.date(byAdding: .day, value: -offset, to: .now)!)
-        }
+        Statistics.weekTotal(sessions: sessions, containing: .now, calendar: calendar)
+    }
+
+    private var previousWeekTotal: TimeInterval {
+        let previousWeek = calendar.date(byAdding: .weekOfYear, value: -1, to: .now) ?? .now
+        return Statistics.weekTotal(sessions: sessions, containing: previousWeek, calendar: calendar)
     }
 
     private var currentStreak: Int {
@@ -110,8 +117,8 @@ struct StatsView: View {
     }
 
     private var subjectTotals: [(name: String, color: Color, seconds: TimeInterval)] {
-        let weekAgo = calendar.date(byAdding: .day, value: -6, to: calendar.startOfDay(for: .now))!
-        let recent = sessions.filter { $0.startDate >= weekAgo }
+        let weekStart = calendar.dateInterval(of: .weekOfYear, for: .now)?.start ?? calendar.startOfDay(for: .now)
+        let recent = sessions.filter { $0.startDate >= weekStart }
         var totals: [String: (color: Color, seconds: TimeInterval)] = [:]
         for session in recent {
             let name = session.subject?.name ?? localized("common.no_subject")
@@ -120,6 +127,12 @@ struct StatsView: View {
         }
         return totals
             .map { (name: $0.key, color: $0.value.color, seconds: $0.value.seconds) }
+            .sorted { $0.seconds > $1.seconds }
+    }
+
+    private var profileTotals: [(name: String, seconds: TimeInterval)] {
+        Statistics.presetTotals(sessions: sessions)
+            .map { (name: $0.key, seconds: $0.value) }
             .sorted { $0.seconds > $1.seconds }
     }
 
@@ -153,6 +166,31 @@ struct StatsView: View {
             ))
                 .font(.caption)
                 .foregroundStyle(.secondary)
+        }
+        .padding(18)
+        .glassEffect(.regular, in: .rect(cornerRadius: 20))
+    }
+
+    private var weekComparisonCard: some View {
+        let difference = weekTotal - previousWeekTotal
+        let symbol = difference > 0 ? "arrow.up.right" : difference < 0 ? "arrow.down.right" : "arrow.right"
+        let tint: Color = difference > 0 ? .green : difference < 0 ? .orange : .gray
+        return HStack(spacing: 16) {
+            Image(systemName: symbol)
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(tint)
+                .frame(width: 34)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(localized("stats.week_comparison"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(localized("stats.week_comparison_value", formatDuration(weekTotal), formatDuration(previousWeekTotal)))
+                    .font(.callout.weight(.semibold))
+            }
+            Spacer()
+            Text(localized("stats.week_difference", difference >= 0 ? "+\(formatDuration(abs(difference)))" : "−\(formatDuration(abs(difference)))"))
+                .font(.callout.monospacedDigit())
+                .foregroundStyle(tint)
         }
         .padding(18)
         .glassEffect(.regular, in: .rect(cornerRadius: 20))
@@ -300,6 +338,30 @@ struct StatsView: View {
                 }
             }
             .frame(height: 140)
+        }
+        .padding(18)
+        .glassEffect(.regular, in: .rect(cornerRadius: 20))
+    }
+
+    private var profileCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Label(localized("stats.study_profiles"), systemImage: "square.stack.3d.up.fill")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            let maximum = profileTotals.first?.seconds ?? 1
+            ForEach(profileTotals, id: \.name) { item in
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text(item.name).font(.callout)
+                        Spacer()
+                        Text(formatDuration(item.seconds))
+                            .font(.callout)
+                            .monospacedDigit()
+                            .foregroundStyle(.secondary)
+                    }
+                    ProgressView(value: item.seconds / max(maximum, 1))
+                }
+            }
         }
         .padding(18)
         .glassEffect(.regular, in: .rect(cornerRadius: 20))

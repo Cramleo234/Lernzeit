@@ -2,6 +2,10 @@ import Foundation
 import SwiftData
 
 enum DataStore {
+    private static var schema: Schema {
+        Schema([Subject.self, StudySession.self, TimerPreset.self])
+    }
+
     /// Gemeinsamer Speicherort für App und Widget: ein normaler Ordner in
     /// Application Support — kein Group Container, keine System-Rückfrage.
     static var storeDirectory: URL {
@@ -10,19 +14,46 @@ enum DataStore {
     }
 
     static func makeContainer() -> ModelContainer {
-        let schema = Schema([Subject.self, StudySession.self])
         let fm = FileManager.default
         try? fm.createDirectory(at: storeDirectory, withIntermediateDirectories: true)
         let storeURL = storeDirectory.appendingPathComponent("Lernzeit.store")
         migrateLegacyGroupStoreIfNeeded(to: storeURL)
-        let config = ModelConfiguration(url: storeURL)
-        if let container = try? ModelContainer(for: schema, configurations: [config]) {
-            return container
-        }
+        backupStoreBeforeV3IfNeeded(storeURL: storeURL)
         do {
-            return try ModelContainer(for: schema)
+            return try makeContainer(at: storeURL)
         } catch {
             fatalError("ModelContainer konnte nicht erstellt werden: \(error)")
+        }
+    }
+
+    /// Öffnet denselben 3.0-Schematyp an einem expliziten Ort. Dieser Seam
+    /// erlaubt Migrationstests auf Kopien, ohne den Benutzer-Store anzufassen.
+    static func makeContainer(at storeURL: URL) throws -> ModelContainer {
+        let config = ModelConfiguration(url: storeURL)
+        return try ModelContainer(for: schema, configurations: [config])
+    }
+
+    /// Erstellt vor dem ersten Öffnen mit dem 3.0-Schema eine einmalige,
+    /// vollständige Kopie der SQLite-Dateien. Ein Fehler blockiert den App-Start
+    /// nicht; ohne vollständige Kopie wird jedoch kein Marker gesetzt.
+    private static func backupStoreBeforeV3IfNeeded(storeURL: URL) {
+        let fm = FileManager.default
+        let marker = storeDirectory.appendingPathComponent(".v3-backup-done")
+        guard !fm.fileExists(atPath: marker.path), fm.fileExists(atPath: storeURL.path) else { return }
+
+        let destination = storeDirectory.appendingPathComponent("Backups/Before-3.0", isDirectory: true)
+        do {
+            try fm.createDirectory(at: destination, withIntermediateDirectories: true)
+            for suffix in ["", "-shm", "-wal"] {
+                let source = URL(fileURLWithPath: storeURL.path + suffix)
+                guard fm.fileExists(atPath: source.path) else { continue }
+                let target = destination.appendingPathComponent(source.lastPathComponent)
+                if fm.fileExists(atPath: target.path) { try fm.removeItem(at: target) }
+                try fm.copyItem(at: source, to: target)
+            }
+            fm.createFile(atPath: marker.path, contents: nil)
+        } catch {
+            try? fm.removeItem(at: destination)
         }
     }
 
@@ -89,5 +120,27 @@ enum Statistics {
             previous = day
         }
         return best
+    }
+
+    static func weekTotal(
+        sessions: [StudySession],
+        subject: Subject? = nil,
+        containing date: Date = .now,
+        calendar: Calendar = .current
+    ) -> TimeInterval {
+        guard let interval = calendar.dateInterval(of: .weekOfYear, for: date) else { return 0 }
+        return sessions.reduce(0) { total, session in
+            guard interval.contains(session.startDate) else { return total }
+            if let subject, session.subject !== subject { return total }
+            return total + session.duration
+        }
+    }
+
+    static func presetTotals(sessions: [StudySession]) -> [String: TimeInterval] {
+        sessions.reduce(into: [:]) { totals, session in
+            let name = session.presetName.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !name.isEmpty else { return }
+            totals[name, default: 0] += session.duration
+        }
     }
 }

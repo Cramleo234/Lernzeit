@@ -58,7 +58,7 @@ struct NotchLineView: View {
     @State private var pulsing = false
 
     private var isBreak: Bool {
-        engine.mode == .pomodoro && engine.phase == .pause
+        engine.mode == .pomodoro && engine.phase.isBreak
     }
 
     /// Pausen laufen in hellem, pulsierendem Grün ab, der eigentliche Timer in Rot.
