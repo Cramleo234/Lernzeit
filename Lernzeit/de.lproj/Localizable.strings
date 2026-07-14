@@ -1,9 +1,14 @@
 "appearance.dark" = "Dunkel";
-"appearance.description" = "Wähle „Dunkel“, um Lernzeit unabhängig von der macOS-Einstellung dauerhaft im Dark Theme zu verwenden.";
+"appearance.description" = "„System“ folgt Änderungen der macOS-Darstellung automatisch. Die Farbwelt bleibt davon unabhängig.";
 "appearance.light" = "Hell";
+"appearance.mode" = "Modus";
 "appearance.section" = "Darstellung";
 "appearance.system" = "System";
-"appearance.theme" = "Theme";
+"theme.color_world" = "Farbwelt";
+"theme.forest" = "Wald";
+"theme.ocean" = "Ozean";
+"theme.standard" = "Standard";
+"theme.sunset" = "Sonnenuntergang";
 "common.cancel" = "Abbrechen";
 "common.delete" = "Löschen";
 "common.done" = "Fertig";

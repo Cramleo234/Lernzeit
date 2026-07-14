@@ -14,7 +14,14 @@ final class SettingsLayoutTests: XCTestCase {
             TimerPreset.self,
             configurations: configuration
         )
-        let root = SettingsView().modelContainer(container)
+        let suiteName = "SettingsLayoutTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defaults.removePersistentDomain(forName: suiteName)
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let root = SettingsView()
+            .modelContainer(container)
+            .environment(AppearanceStore(defaults: defaults))
         let hostingView = NSHostingView(rootView: root)
         let contentSize = NSSize(width: 640, height: 600)
         hostingView.frame = NSRect(origin: .zero, size: contentSize)
