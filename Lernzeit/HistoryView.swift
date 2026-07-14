@@ -6,45 +6,65 @@ struct HistoryView: View {
     @Environment(\.modelContext) private var context
     @State private var noteSession: StudySession?
     @State private var editSession: StudySession?
+    @State private var searchText = ""
+
+    private var filteredSessions: [StudySession] {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return sessions }
+        return sessions.filter { session in
+            [session.subject?.name, session.note, session.presetName, session.modeRaw]
+                .compactMap { $0 }
+                .contains { $0.localizedCaseInsensitiveContains(query) }
+        }
+    }
 
     private var grouped: [(day: Date, items: [StudySession])] {
-        let groups = Dictionary(grouping: sessions) {
+        let groups = Dictionary(grouping: filteredSessions) {
             Calendar.current.startOfDay(for: $0.startDate)
         }
         return groups.keys.sorted(by: >).map { (day: $0, items: groups[$0] ?? []) }
     }
 
     var body: some View {
-        if sessions.isEmpty {
-            ContentUnavailableView(
-                localized("history.empty_title"),
-                systemImage: "clock",
-                description: Text(localized("history.empty_description"))
-            )
-        } else {
-            List {
-                ForEach(grouped, id: \.day) { group in
-                    Section {
-                        ForEach(group.items) { session in
-                            row(for: session)
-                        }
-                    } header: {
-                        HStack {
-                            Text(dayLabel(group.day))
-                            Spacer()
-                            Text(formatDuration(group.items.reduce(0) { $0 + $1.duration }))
-                                .monospacedDigit()
+        Group {
+            if sessions.isEmpty {
+                ContentUnavailableView(
+                    localized("history.empty_title"),
+                    systemImage: "clock",
+                    description: Text(localized("history.empty_description"))
+                )
+            } else if filteredSessions.isEmpty {
+                ContentUnavailableView(
+                    localized("history.no_results_title"),
+                    systemImage: "magnifyingglass",
+                    description: Text(localized("history.no_results_description", searchText))
+                )
+            } else {
+                List {
+                    ForEach(grouped, id: \.day) { group in
+                        Section {
+                            ForEach(group.items) { session in
+                                row(for: session)
+                            }
+                        } header: {
+                            HStack {
+                                Text(dayLabel(group.day))
+                                Spacer()
+                                Text(formatDuration(group.items.reduce(0) { $0 + $1.duration }))
+                                    .monospacedDigit()
+                            }
                         }
                     }
                 }
+                .scrollContentBackground(.hidden)
             }
-            .scrollContentBackground(.hidden)
-            .sheet(item: $noteSession) { session in
-                SessionNoteSheet(session: session)
-            }
-            .sheet(item: $editSession) { session in
-                SessionEditSheet(session: session)
-            }
+        }
+        .searchable(text: $searchText, prompt: localized("history.search_prompt"))
+        .sheet(item: $noteSession) { session in
+            SessionNoteSheet(session: session)
+        }
+        .sheet(item: $editSession) { session in
+            SessionEditSheet(session: session)
         }
     }
 
@@ -65,6 +85,16 @@ struct HistoryView: View {
                         .italic()
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
+                }
+                if !session.presetName.isEmpty {
+                    Label(
+                        session.completedFocusRounds > 0
+                            ? localized("history.profile_with_rounds", session.presetName, session.completedFocusRounds)
+                            : localized("history.profile", session.presetName),
+                        systemImage: "square.stack.3d.up"
+                    )
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
                 }
             }
 

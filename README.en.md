@@ -6,15 +6,18 @@ A minimalist study timer for macOS with a modern, translucent glass design.
 
 ## Features
 
-- ⏱️ **Stopwatch & Pomodoro** — count up freely or study with focus and break intervals, including notifications and sounds
-- 📚 **Subjects** — assign sessions to color-coded subjects; the subject color also appears in timers, rings, and progress lines
-- 📝 **Notes** — record what you studied after each session
-- 📊 **Statistics** — daily, weekly, and monthly charts; a six-month heatmap; records; your most productive time of day; and breakdowns by subject
+- ☀️ **Today dashboard** — daily progress, the active session, weekly goals, and quick start in one place
+- ⚡ **Study profiles** — save recurring timers, subjects, and Pomodoro routines and start them with one click
+- ⏱️ **Stopwatch, timer & Pomodoro** — count up, count down, or study with complete focus cycles
+- ☕ **Flexible Pomodoro cycles** — short and long breaks, a configurable round count, and automatic or manual phase starts
+- 📚 **Subjects & weekly goals** — assign sessions to color-coded subjects and set an optional weekly goal for each subject
+- 📝 **Notes & history search** — record what you studied and find sessions by subject, note, or study profile
+- 📊 **Statistics** — charts, a heatmap, records, week-over-week comparison, and breakdowns by subject and study profile
 - 🔥 **Daily goals & streaks** — set a daily study goal, build streaks, and receive a notification when you reach your goal
+- 💾 **Local data backup** — export and restore complete JSON backups or save your sessions as CSV
 - 🧿 **Ambient progress** — a progress line around the notch on supported Macs and a progress ring in the menu bar icon
-- 🪟 **Mini timer** — a compact floating timer that stays above other windows
-- 🖥️ **Menu bar timer** — start, pause, and stop sessions directly from the menu bar
-- 😴 **Honest timing** — automatically pauses when the screen is locked or the Mac is inactive, then resumes automatically
+- 🪟 **Mini & menu bar timers** — monitor sessions in a compact window and start them from the menu bar or a study profile
+- 😴 **Honest timing** — automatically pauses when the screen is locked or the Mac is inactive while Pomodoro breaks continue reliably
 - 🧊 **Glass design** — a native translucent interface built entirely with SwiftUI
 - 🌙 **Dark theme** — use the system appearance or choose Light or Dark mode
 

@@ -15,7 +15,7 @@ LOCALIZATION_PATHS = {
 }
 ENTRY_PATTERN = re.compile(r'^\s*"((?:\\.|[^"\\])*)"\s*=\s*"((?:\\.|[^"\\])*)"\s*;\s*$')
 KEY_PATTERN = re.compile(
-    r'"((?:appearance|common|duration|history|menu|mini|navigation|notification|settings|stats|status|subjects|timer)\.[a-z0-9_.]+)"'
+    r'"((?:appearance|common|data|duration|history|menu|mini|navigation|notification|presets|settings|stats|status|subjects|timer|today)\.[a-z0-9_.]+)"'
 )
 PLACEHOLDER_PATTERN = re.compile(r'%(?:\d+\$)?[-+#0 ]*(?:\d+|\*)?(?:\.\d+|\.\*)?[hlLzjtq]*[@diuoxXfFeEgGaAcCsSp]')
 

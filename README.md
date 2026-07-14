@@ -6,15 +6,18 @@ Minimalistische Lern-Timer-App für macOS mit modernem, durchscheinendem Glas-De
 
 ## Features
 
-- ⏱️ **Stoppuhr & Pomodoro** — frei hochzählen oder mit Fokus-/Pausen-Intervallen lernen (inkl. Benachrichtigungen und Tönen)
-- 📚 **Fächer** — Sessions einem Fach mit eigener Farbe zuordnen; die Fachfarbe färbt Timer, Ringe und Fortschrittslinien
-- 📝 **Notizen** — nach jeder Session festhalten, was du gelernt hast
-- 📊 **Statistiken** — Tages-/Wochen-/Monats-Diagramme, 6-Monats-Heatmap, Rekorde, beste Lern-Tageszeit, Aufschlüsselung nach Fächern
-- 🔥 **Tagesziele & Streaks** — tägliches Lernziel setzen, Serien aufbauen, Benachrichtigung bei Zielerreichung
+- ☀️ **Heute-Dashboard** — Tagesfortschritt, laufende Session, Wochenziele und Schnellstart an einem Ort
+- ⚡ **Lernprofile** — wiederkehrende Timer, Fächer und Pomodoro-Abläufe speichern und mit einem Klick starten
+- ⏱️ **Stoppuhr, Timer & Pomodoro** — frei hochzählen, herunterzählen oder mit vollständigen Fokuszyklen lernen
+- ☕ **Flexible Pomodoro-Zyklen** — kurze und lange Pausen, frei wählbare Rundenzahl sowie automatischer oder manueller Phasenstart
+- 📚 **Fächer & Wochenziele** — Sessions farbigen Fächern zuordnen und je Fach ein optionales Wochenziel setzen
+- 📝 **Notizen & Verlaufssuche** — Lerninhalte festhalten und Sitzungen nach Fach, Notiz oder Lernprofil finden
+- 📊 **Statistiken** — Diagramme, Heatmap, Rekorde, Wochenvergleich sowie Auswertungen nach Fach und Lernprofil
+- 🔥 **Tagesziele & Streaks** — tägliches Lernziel setzen, Serien aufbauen und Benachrichtigung bei Zielerreichung
+- 💾 **Lokale Datensicherung** — vollständige JSON-Backups exportieren und wiederherstellen sowie Sitzungen als CSV sichern
 - 🧿 **Ambient-Fortschritt** — Fortschrittslinie um die Notch (auf Macs mit Notch) und Fortschrittsring im Menüleisten-Icon
-- 🪟 **Mini-Timer** — kompakter, schwebender Timer, der über allen Fenstern bleibt
-- 🖥️ **Menüleisten-Timer** — Sessions direkt aus der Menüleiste starten, pausieren und stoppen
-- 😴 **Ehrliche Zeiten** — automatische Pause bei Bildschirmsperre oder Inaktivität, automatische Fortsetzung
+- 🪟 **Mini- & Menüleisten-Timer** — Sessions kompakt beobachten sowie direkt aus der Menüleiste oder per Lernprofil starten
+- 😴 **Ehrliche Zeiten** — automatische Pause bei Bildschirmsperre oder Inaktivität; Pomodoro-Pausen laufen zuverlässig weiter
 - 🧊 **Glas-Design** — natives, durchscheinendes Oberflächen-Design, komplett in SwiftUI
 - 🌙 **Dark Theme** — Darstellung auf System, Hell oder Dunkel stellen
 
